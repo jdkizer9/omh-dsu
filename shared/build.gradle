@@ -1,8 +1,11 @@
 dependencies {
     compile 'org.springframework.data:spring-data-commons'
     compile 'org.springframework.data:spring-data-mongodb'
-    compile 'org.springframework:spring-jdbc'
-    compile 'org.springframework:spring-tx'
+    compile "org.springframework:spring-jdbc:${springVersion}"
+    compile "org.springframework:spring-tx:${springVersion}"
+    compile "org.springframework:spring-core:${springVersion}"
+    compile "org.springframework:spring-web:${springVersion}"
+
     // the tomcat-jdbc dependency chooses the connection pool to use when talking to a relational database and triggers
     // the creation of a javax.sql.DataSource by DataSourceAutoConfiguration
     runtime 'org.apache.tomcat:tomcat-jdbc'

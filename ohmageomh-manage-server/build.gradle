@@ -145,6 +145,18 @@ dependencies {
         exclude(module: 'jetty-servlet')
     }
     compile group: 'com.mattbertolini', name: 'liquibase-slf4j', version: liquibase_slf4j_version
+
+    compile "org.springframework:spring-aop:${springVersion}"
+    compile "org.springframework:spring-beans:${springVersion}"
+    compile ("org.springframework:spring-context-support:${springVersion}") {
+        exclude(module: 'quartz')
+    }
+    compile "org.springframework:spring-context:${springVersion}"
+    compile "org.springframework:spring-core:${springVersion}"
+    compile "org.springframework:spring-tx:${springVersion}"
+    compile "org.springframework:spring-web:${springVersion}"
+    compile "org.springframework:spring-webmvc:${springVersion}"
+
     compile group: 'org.springframework.boot', name: 'spring-boot-actuator'
     compile group: 'org.springframework.boot', name: 'spring-boot-autoconfigure'
     compile group: 'org.springframework.boot', name: 'spring-boot-loader-tools'
@@ -158,9 +170,7 @@ dependencies {
     compile group: 'org.springframework.cloud', name: 'spring-cloud-cloudfoundry-connector'
     compile group: 'org.springframework.cloud', name: 'spring-cloud-spring-service-connector'
     compile group: 'org.springframework.cloud', name: 'spring-cloud-localconfig-connector'
-    compile(group: 'org.springframework', name: 'spring-context-support') {
-        exclude(module: 'quartz')
-    }
+
     compile group: 'org.springframework.security', name: 'spring-security-config', version: spring_security_version
     compile group: 'org.springframework.security', name: 'spring-security-data', version: spring_security_version
     compile group: 'org.springframework.security', name: 'spring-security-web', version: spring_security_version

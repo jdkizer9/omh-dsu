@@ -31,6 +31,8 @@ subprojects {
         javaVersion = 1.8
         omhSchemaSdkVersion = '1.0.5'
         mailApiVersion = '1.5.2'
+        springVersion = '4.3.11.RELEASE'
+        springSecurityVersion = '4.2.3.RELEASE'
     }
 
     sourceCompatibility = javaVersion
@@ -46,16 +48,16 @@ subprojects {
         compile "javax.mail:javax.mail-api:${mailApiVersion}" // required to support InternetAddress fields
         compile "org.openmhealth.schema:omh-schema-sdk:${omhSchemaSdkVersion}"
         compile 'org.slf4j:slf4j-api'
-        compile 'org.springframework:spring-beans'
+        compile "org.springframework:spring-beans:${springVersion}"
         compile "org.springframework.boot:spring-boot-autoconfigure"
-        compile 'org.springframework:spring-context'
+        compile "org.springframework:spring-context:${springVersion}"
         compile group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2.0.6.RELEASE'
         compile 'javax.validation:validation-api'
 
         testCompile 'org.hamcrest:hamcrest-library'
         testCompile 'junit:junit'
         testCompile 'org.mockito:mockito-core'
-        testCompile 'org.springframework:spring-test'
+        testCompile "org.springframework:spring-test:${springVersion}"
 
         runtime 'org.slf4j:jcl-over-slf4j'
         runtime 'org.slf4j:log4j-over-slf4j'
@@ -105,8 +107,12 @@ configure([
         compile("org.springframework.boot:spring-boot-starter-web") {
             exclude module: "spring-boot-starter-tomcat"
         }
-        compile 'org.springframework:spring-web'
-        compile 'org.springframework:spring-webmvc'
+
+        compile "org.springframework:spring-core:${springVersion}"
+        compile "org.springframework:spring-web:${springVersion}"
+        compile "org.springframework:spring-webmvc:${springVersion}"
+        compile "org.springframework:spring-tx:${springVersion}"
+        compile "org.springframework:spring-jdbc:${springVersion}"
 
         // you can comment out any dependencies you know you don't need after this point
         compile 'org.mongodb:mongo-java-driver'
