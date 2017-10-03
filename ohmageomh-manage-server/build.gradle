@@ -6,10 +6,15 @@ buildscript {
         maven { url 'http://repo.spring.io/milestone' }
         maven { url "https://plugins.gradle.org/m2/" }
     }
+
+    ext {
+        springBootVersion = '1.3.1.RELEASE'
+    }
+
     dependencies {
         classpath group: 'org.sonarsource.scanner.gradle', name: 'sonarqube-gradle-plugin', version: '1.2'
         classpath group: 'net.ltgt.gradle', name: 'gradle-apt-plugin', version: '0.6'
-        classpath group: 'org.springframework.boot', name: 'spring-boot-gradle-plugin', version: spring_boot_version
+        classpath group: 'org.springframework.boot', name: 'spring-boot-gradle-plugin', version: springBootVersion
         classpath group: 'org.springframework.build.gradle', name: 'propdeps-plugin', version: '0.0.7'
         classpath group: 'com.moowork.gradle', name: 'gradle-node-plugin', version: '0.12'
         classpath group: 'com.moowork.gradle', name: 'gradle-gulp-plugin', version: '0.12'
@@ -87,7 +92,7 @@ if (project.hasProperty('prod')) {
 }
 
 group = 'io.smalldata.ohmageomh'
-version = '2.0.4'
+//version = '2.0.4'
 
 description = ''
 
@@ -102,6 +107,36 @@ repositories {
     maven { url 'https://oss.sonatype.org/content/repositories/releases' }
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     maven { url 'http://repo.maven.apache.org/maven2' }
+}
+
+ext {
+    assertj_core_version="3.3.0"
+    awaility_version="1.7.0"
+    commons_lang_version="2.6"
+    commons_io_version="2.4"
+    dropwizard_metrics_version="3.1.2"
+    logstash_logback_encoder_version="4.6"
+
+    javax_inject_version="1"
+    javax_transaction_version="1.2"
+    json_path_version="0.9.1"
+    jackson_version="2.6.3"
+    geronimo_javamail_1_4_mail_version="1.8.4"
+    hibernate_entitymanager_version="4.3.11.Final"
+    HikariCP_version="2.4.3"
+    liquibase_slf4j_version="1.2.1"
+    liquibase_core_version="3.4.2"
+    liquibase_hibernate4_version="3.5"
+    hibernate_validator_version="5.2.1.Final"
+    metrics_spark_reporter_version="1.2"
+    metrics_spring_version="3.1.2"
+    postgresql_version="9.4-1203-jdbc42"
+    springfox_version="2.4.0"
+    h2_version="1.4.188"
+
+    mapstruct_version="1.0.0.Final"
+
+    springSecurityVersion = '4.2.3.RELEASE'
 }
 
 dependencies {
@@ -171,9 +206,9 @@ dependencies {
     compile group: 'org.springframework.cloud', name: 'spring-cloud-spring-service-connector'
     compile group: 'org.springframework.cloud', name: 'spring-cloud-localconfig-connector'
 
-    compile group: 'org.springframework.security', name: 'spring-security-config', version: spring_security_version
-    compile group: 'org.springframework.security', name: 'spring-security-data', version: spring_security_version
-    compile group: 'org.springframework.security', name: 'spring-security-web', version: spring_security_version
+    compile group: 'org.springframework.security', name: 'spring-security-config', version: springSecurityVersion
+    compile group: 'org.springframework.security', name: 'spring-security-data', version: springSecurityVersion
+    compile group: 'org.springframework.security', name: 'spring-security-web', version: springSecurityVersion
 
     compile(group: 'io.springfox', name: 'springfox-swagger2', version: springfox_version){
         exclude module: 'mapstruct'
