@@ -1,0 +1,1 @@
+{"name":"omh-dsu-ri","group_id":"org.openmhealth","artifact_id":"omh-dsu-ri","language":"Java","prod_type":"Maven2","dependencies":[{"name":"org.springframework.boot:spring-boot-gradle-plugin","version":"1.3.3.RELEASE","scope":"plugin"},{"name":"org.standardout:gradle-versioneye-plugin","version":"1.5.0","scope":"plugin"}]}

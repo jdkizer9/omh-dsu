@@ -9,10 +9,6 @@ dependencies {
     // io.smalldata.ohmageomh dependencies
     compile project(':ohmageomh-surveys')
 
-    compile "org.springframework:spring-jdbc:${springVersion}"
-    compile "org.springframework:spring-tx:${springVersion}"
-    compile "org.springframework:spring-core:${springVersion}"
-
     compile 'org.springframework.data:spring-data-commons'
     compile 'org.springframework.data:spring-data-mongodb'
 
