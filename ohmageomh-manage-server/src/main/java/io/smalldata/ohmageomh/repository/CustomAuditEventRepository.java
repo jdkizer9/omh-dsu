@@ -46,19 +46,6 @@ public class CustomAuditEventRepository implements AuditEventRepository {
         return auditEventConverter.convertToAuditEvent(persistentAuditEvents);
     }
 
-    //TODO: Jared can you take a look at this stuff?
-    //TODO: Do we need to update PersistenceAuditEventRepository to include find interface for type?
-    //TODO: I can't find where that interface is instantiated
-    @Override
-    public List<AuditEvent> find(Date after) {
-        return null;
-    }
-
-    @Override
-    public List<AuditEvent> find(String principal, Date after, String type) {
-        return null;
-    }
-
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void add(AuditEvent event) {

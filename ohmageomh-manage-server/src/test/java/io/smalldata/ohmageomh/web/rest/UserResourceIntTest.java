@@ -7,7 +7,8 @@ import io.smalldata.ohmageomh.service.UserService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.IntegrationTest;
+import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -28,8 +29,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @see UserResource
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = OhmageApp.class)
+@SpringApplicationConfiguration(classes = OhmageApp.class)
 @WebAppConfiguration
+@IntegrationTest
 public class UserResourceIntTest {
 
     @Inject

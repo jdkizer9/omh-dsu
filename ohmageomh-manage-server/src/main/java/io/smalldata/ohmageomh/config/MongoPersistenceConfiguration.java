@@ -28,7 +28,6 @@ import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.core.env.Environment;
 import org.springframework.data.mapping.model.FieldNamingStrategy;
 import org.springframework.data.mapping.model.JsonPropertyPreservingFieldNamingStrategy;
 import org.springframework.data.mapping.model.SnakeCaseFieldNamingStrategy;
@@ -59,9 +58,6 @@ public class MongoPersistenceConfiguration extends AbstractMongoConfiguration {
     @Autowired(required = false)
     private MongoClientOptions clientOptions;
 
-    @Autowired
-    private Environment environment;
-
     private Mongo mongo;
 
     @PreDestroy
@@ -73,7 +69,7 @@ public class MongoPersistenceConfiguration extends AbstractMongoConfiguration {
 
     @Bean
     public Mongo mongo() throws UnknownHostException {
-        mongo = mongoProperties.createMongoClient(clientOptions, environment);
+        mongo = mongoProperties.createMongoClient(clientOptions);
         return mongo;
     }
 
