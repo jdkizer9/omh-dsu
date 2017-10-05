@@ -15,6 +15,7 @@ buildscript {
 }
 
 apply plugin: 'org.standardout.versioneye'
+apply plugin: 'spring-boot'
 
 
 allprojects {
@@ -30,7 +31,7 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
-    apply plugin: 'org.springframework.boot' // used for auto-configuration
+//    apply plugin: 'org.springframework.boot' // used for auto-configuration
 
     ext {
         javaVersion = 1.8
@@ -75,6 +76,8 @@ configure([
         project(":authorization-server"),
         project(":resource-server"),
         project(":shared")]) {
+
+//    apply plugin: 'org.springframework.boot'
 
     ext {
         javaVersion = 1.8
