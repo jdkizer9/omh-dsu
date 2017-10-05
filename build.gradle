@@ -5,11 +5,11 @@ buildscript {
     }
 
     ext {
-        springBootVersion = "1.5.7.RELEASE"
+        springBootPluginVersion = "1.5.7.RELEASE"
     }
 
     dependencies {
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootPluginVersion}"
     }
 }
 
@@ -33,6 +33,7 @@ subprojects {
         mailApiVersion = '1.6.0'
         springVersion = '4.3.11.RELEASE'
         springSecurityVersion = '4.2.3.RELEASE'
+        springBootVersion = '1.5.7.RELEASE'
     }
 
     sourceCompatibility = javaVersion
@@ -49,7 +50,7 @@ subprojects {
         compile "org.openmhealth.schema:omh-schema-sdk:${omhSchemaSdkVersion}"
         compile 'org.slf4j:slf4j-api'
         compile "org.springframework:spring-beans:${springVersion}"
-        compile "org.springframework.boot:spring-boot-autoconfigure"
+        compile "org.springframework.boot:spring-boot-autoconfigure:${springBootVersion}"
         compile "org.springframework:spring-context:${springVersion}"
         compile group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2.2.0.RELEASE'
         compile 'javax.validation:validation-api'
@@ -115,13 +116,14 @@ configure([
 
     ext {
         springVersion = '4.3.11.RELEASE'
+        springBootVersion = '1.5.7.RELEASE'
     }
 
     dependencies {
         compile project(':shared')
         compile 'org.apache.httpcomponents:httpclient'
-        compile "org.springframework.boot:spring-boot-starter-jetty"
-        compile("org.springframework.boot:spring-boot-starter-web") {
+        compile "org.springframework.boot:spring-boot-starter-jetty:${springBootVersion}"
+        compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}") {
             exclude module: "spring-boot-starter-tomcat"
         }
         compile "org.springframework:spring-core:${springVersion}"
@@ -135,7 +137,7 @@ configure([
         // compile 'mysql:mysql-connector-java'
         compile "org.postgresql:postgresql"
 
-        testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+        testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
     }
 
     task copyArchiveJarToDockerContext(dependsOn: assemble, type: Copy) {

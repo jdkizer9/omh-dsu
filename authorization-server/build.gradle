@@ -3,7 +3,7 @@ description = 'A simple OAuth2 authorisation server backed by a user data store.
 // io.smalldata.ohmageomh dependencies
 dependencies {
 
-    compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+    compile("org.springframework.boot:spring-boot-starter-thymeleaf:${springBootVersion}")
 
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
