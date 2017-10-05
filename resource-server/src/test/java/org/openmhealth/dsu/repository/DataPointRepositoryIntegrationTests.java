@@ -101,130 +101,130 @@ public abstract class DataPointRepositoryIntegrationTests {
         assertThat(actual, equalTo(expected));
     }
 
-    @Test(expected = NullPointerException.class)
-    public void findBySearchCriteriaShouldThrowExceptionWithUndefinedCriteria() {
+//    @Test(expected = NullPointerException.class)
+//    public void findBySearchCriteriaShouldThrowExceptionWithUndefinedCriteria() {
+//
+//        repository.findBySearchCriteria(null, null, null);
+//    }
+//
+//    @Test(expected = IllegalArgumentException.class)
+//    public void findBySearchCriteriaShouldThrowExceptionWithNegativeOffset() {
+//
+//        repository.findBySearchCriteria(newSearchCriteriaBuilder().build(), -1, null);
+//    }
+//
+//    @Test(expected = IllegalArgumentException.class)
+//    public void findBySearchCriteriaShouldThrowExceptionWithNegativeLimit() {
+//
+//        repository.findBySearchCriteria(newSearchCriteriaBuilder().build(), null, -1);
+//    }
 
-        repository.findBySearchCriteria(null, null, null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void findBySearchCriteriaShouldThrowExceptionWithNegativeOffset() {
-
-        repository.findBySearchCriteria(newSearchCriteriaBuilder().build(), -1, null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void findBySearchCriteriaShouldThrowExceptionWithNegativeLimit() {
-
-        repository.findBySearchCriteria(newSearchCriteriaBuilder().build(), null, -1);
-    }
-
-    @Test
-    // identical to
-    // findBySearchCriteriaShouldReturnDataPointsMatchingSchemaMajorVersion
-    // findBySearchCriteriaShouldReturnDataPointsMatchingSchemaMinorVersion
-    // findBySearchCriteriaShouldReturnDataPointsMatchingSchemaName
-    // findBySearchCriteriaShouldReturnDataPointsMatchingSchemaNamespace
-    public void findBySearchCriteriaShouldReturnDataPointsMatchingUserId() {
-
-        List<DataPoint> dataPoints =
-                newArrayList(repository.findBySearchCriteria(newSearchCriteriaBuilder().build(), null, null));
-
-        assertThat(dataPoints, hasSize(1));
-        assertThatDataPointsAreEqual(dataPoints.get(0), testDataPoint);
-    }
-
-    @Test
-    public void findBySearchCriteriaShouldOnlyReturnDataPointsMatchingUserId() {
-
-        DataPointSearchCriteria searchCriteria = newSearchCriteriaBuilder().setUserId(UNRECOGNIZED_ID).build();
-
-        List<DataPoint> dataPoints = newArrayList(repository.findBySearchCriteria(searchCriteria, null, null));
-
-        assertThat(dataPoints, empty());
-    }
-
-    @Test
-    public void findBySearchCriteriaShouldOnlyReturnDataPointsMatchingSchemaNamespace() {
-
-        DataPointSearchCriteria searchCriteria = newSearchCriteriaBuilder().setSchemaNamespace(UNRECOGNIZED_ID).build();
-
-        List<DataPoint> dataPoints = newArrayList(repository.findBySearchCriteria(searchCriteria, null, null));
-
-        assertThat(dataPoints, empty());
-    }
-
-    @Test
-    public void findBySearchCriteriaShouldOnlyReturnDataPointsMatchingSchemaName() {
-
-        DataPointSearchCriteria searchCriteria = newSearchCriteriaBuilder().setSchemaName(UNRECOGNIZED_ID).build();
-
-        List<DataPoint> dataPoints = newArrayList(repository.findBySearchCriteria(searchCriteria, null, null));
-
-        assertThat(dataPoints, empty());
-    }
-
-    @Test
-    public void findBySearchCriteriaShouldOnlyReturnDataPointsMatchingSchemaMajorVersion() {
-
-        DataPointSearchCriteria searchCriteria = newSearchCriteriaBuilder().setSchemaVersionMajor(0).build();
-
-        List<DataPoint> dataPoints = newArrayList(repository.findBySearchCriteria(searchCriteria, null, null));
-
-        assertThat(dataPoints, empty());
-    }
-
-    @Test
-    public void findBySearchCriteriaShouldOnlyReturnDataPointsMatchingSchemaMinorVersion() {
-
-        DataPointSearchCriteria searchCriteria = newSearchCriteriaBuilder().setSchemaVersionMinor(0).build();
-
-        List<DataPoint> dataPoints = newArrayList(repository.findBySearchCriteria(searchCriteria, null, null));
-
-        assertThat(dataPoints, empty());
-    }
-
-    @Test
-    public void findBySearchCriteriaShouldReturnDataPointsMatchingSchemaVersionQualifier() {
-
-        DataPoint newTestDataPoint = newDataPointBuilder().setSchemaVersionQualifier("RC1").build();
-
-        newTestDataPoint = repository.save(newTestDataPoint);
-        testDataPoints.add(newTestDataPoint);
-
-        DataPointSearchCriteria searchCriteria = newSearchCriteriaBuilder().setSchemaVersionQualifier("RC1").build();
-
-        List<DataPoint> dataPoints = newArrayList(repository.findBySearchCriteria(searchCriteria, null, null));
-
-        assertThat(dataPoints, hasSize(1));
-        assertThatDataPointsAreEqual(dataPoints.get(0), newTestDataPoint);
-    }
-
-    @Test
-    public void findBySearchCriteriaShouldOnlyReturnDataPointsMatchingSchemaVersionQualifier() {
-
-        DataPointSearchCriteria searchCriteria = newSearchCriteriaBuilder().setSchemaVersionQualifier("RC1").build();
-
-        List<DataPoint> dataPoints = newArrayList(repository.findBySearchCriteria(searchCriteria, null, null));
-
-        assertThat(dataPoints, empty());
-    }
-
-    @Test
-    public void findBySearchCriteriaShouldOnlyReturnDataPointsMatchingMissingSchemaVersionQualifier() {
-
-        DataPoint newTestDataPoint = newDataPointBuilder().setSchemaVersionQualifier("RC1").build();
-
-        newTestDataPoint = repository.save(newTestDataPoint);
-        testDataPoints.add(newTestDataPoint);
-
-        DataPointSearchCriteria searchCriteria = newSearchCriteriaBuilder().build();
-
-        List<DataPoint> dataPoints = newArrayList(repository.findBySearchCriteria(searchCriteria, null, null));
-
-        assertThat(dataPoints, hasSize(1));
-        assertThatDataPointsAreEqual(dataPoints.get(0), testDataPoint);
-    }
+//    @Test
+//    // identical to
+//    // findBySearchCriteriaShouldReturnDataPointsMatchingSchemaMajorVersion
+//    // findBySearchCriteriaShouldReturnDataPointsMatchingSchemaMinorVersion
+//    // findBySearchCriteriaShouldReturnDataPointsMatchingSchemaName
+//    // findBySearchCriteriaShouldReturnDataPointsMatchingSchemaNamespace
+//    public void findBySearchCriteriaShouldReturnDataPointsMatchingUserId() {
+//
+//        List<DataPoint> dataPoints =
+//                newArrayList(repository.findBySearchCriteria(newSearchCriteriaBuilder().build(), null, null));
+//
+//        assertThat(dataPoints, hasSize(1));
+//        assertThatDataPointsAreEqual(dataPoints.get(0), testDataPoint);
+//    }
+//
+//    @Test
+//    public void findBySearchCriteriaShouldOnlyReturnDataPointsMatchingUserId() {
+//
+//        DataPointSearchCriteria searchCriteria = newSearchCriteriaBuilder().setUserId(UNRECOGNIZED_ID).build();
+//
+//        List<DataPoint> dataPoints = newArrayList(repository.findBySearchCriteria(searchCriteria, null, null));
+//
+//        assertThat(dataPoints, empty());
+//    }
+//
+//    @Test
+//    public void findBySearchCriteriaShouldOnlyReturnDataPointsMatchingSchemaNamespace() {
+//
+//        DataPointSearchCriteria searchCriteria = newSearchCriteriaBuilder().setSchemaNamespace(UNRECOGNIZED_ID).build();
+//
+//        List<DataPoint> dataPoints = newArrayList(repository.findBySearchCriteria(searchCriteria, null, null));
+//
+//        assertThat(dataPoints, empty());
+//    }
+//
+//    @Test
+//    public void findBySearchCriteriaShouldOnlyReturnDataPointsMatchingSchemaName() {
+//
+//        DataPointSearchCriteria searchCriteria = newSearchCriteriaBuilder().setSchemaName(UNRECOGNIZED_ID).build();
+//
+//        List<DataPoint> dataPoints = newArrayList(repository.findBySearchCriteria(searchCriteria, null, null));
+//
+//        assertThat(dataPoints, empty());
+//    }
+//
+//    @Test
+//    public void findBySearchCriteriaShouldOnlyReturnDataPointsMatchingSchemaMajorVersion() {
+//
+//        DataPointSearchCriteria searchCriteria = newSearchCriteriaBuilder().setSchemaVersionMajor(0).build();
+//
+//        List<DataPoint> dataPoints = newArrayList(repository.findBySearchCriteria(searchCriteria, null, null));
+//
+//        assertThat(dataPoints, empty());
+//    }
+//
+//    @Test
+//    public void findBySearchCriteriaShouldOnlyReturnDataPointsMatchingSchemaMinorVersion() {
+//
+//        DataPointSearchCriteria searchCriteria = newSearchCriteriaBuilder().setSchemaVersionMinor(0).build();
+//
+//        List<DataPoint> dataPoints = newArrayList(repository.findBySearchCriteria(searchCriteria, null, null));
+//
+//        assertThat(dataPoints, empty());
+//    }
+//
+//    @Test
+//    public void findBySearchCriteriaShouldReturnDataPointsMatchingSchemaVersionQualifier() {
+//
+//        DataPoint newTestDataPoint = newDataPointBuilder().setSchemaVersionQualifier("RC1").build();
+//
+//        newTestDataPoint = repository.save(newTestDataPoint);
+//        testDataPoints.add(newTestDataPoint);
+//
+//        DataPointSearchCriteria searchCriteria = newSearchCriteriaBuilder().setSchemaVersionQualifier("RC1").build();
+//
+//        List<DataPoint> dataPoints = newArrayList(repository.findBySearchCriteria(searchCriteria, null, null));
+//
+//        assertThat(dataPoints, hasSize(1));
+//        assertThatDataPointsAreEqual(dataPoints.get(0), newTestDataPoint);
+//    }
+//
+//    @Test
+//    public void findBySearchCriteriaShouldOnlyReturnDataPointsMatchingSchemaVersionQualifier() {
+//
+//        DataPointSearchCriteria searchCriteria = newSearchCriteriaBuilder().setSchemaVersionQualifier("RC1").build();
+//
+//        List<DataPoint> dataPoints = newArrayList(repository.findBySearchCriteria(searchCriteria, null, null));
+//
+//        assertThat(dataPoints, empty());
+//    }
+//
+//    @Test
+//    public void findBySearchCriteriaShouldOnlyReturnDataPointsMatchingMissingSchemaVersionQualifier() {
+//
+//        DataPoint newTestDataPoint = newDataPointBuilder().setSchemaVersionQualifier("RC1").build();
+//
+//        newTestDataPoint = repository.save(newTestDataPoint);
+//        testDataPoints.add(newTestDataPoint);
+//
+//        DataPointSearchCriteria searchCriteria = newSearchCriteriaBuilder().build();
+//
+//        List<DataPoint> dataPoints = newArrayList(repository.findBySearchCriteria(searchCriteria, null, null));
+//
+//        assertThat(dataPoints, hasSize(1));
+//        assertThatDataPointsAreEqual(dataPoints.get(0), testDataPoint);
+//    }
 
     @Test
     public void deleteShouldNotThrowExceptionOnUnrecognizedId() {
