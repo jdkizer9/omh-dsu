@@ -1,8 +1,8 @@
 dependencies {
     compile 'org.springframework.data:spring-data-commons'
     compile 'org.springframework.data:spring-data-mongodb'
-    compile 'org.springframework:spring-jdbc'
-    compile 'org.springframework:spring-tx'
+//    compile 'org.springframework:spring-jdbc'
+//    compile 'org.springframework:spring-tx'
     // the tomcat-jdbc dependency chooses the connection pool to use when talking to a relational database and triggers
     // the creation of a javax.sql.DataSource by DataSourceAutoConfiguration
     runtime 'org.apache.tomcat:tomcat-jdbc'
@@ -18,7 +18,6 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-web") {
         exclude module: "spring-boot-starter-tomcat"
     }
-    compile 'org.springframework.mobile:spring-mobile-device:1.1.3.RELEASE'
 
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
