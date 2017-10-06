@@ -21,6 +21,6 @@ docker push $1/ohmage-auth-server:$2
 docker build -t $1/ohmage-resource-server:$2 resource-server/docker/ &&
 docker push $1/ohmage-resource-server:$2
 
-./gradlew :ohmageomh-manage-server:build -x test &&
-docker build -t $1/ohmage-manage-server:$2 ohmageomh-manage-server/docker/  &&
-docker push $1/ohmage-manage-server:$2
+# ./gradlew :ohmageomh-manage-server:build -x test &&
+# docker build -t $1/ohmage-manage-server:$2 ohmageomh-manage-server/docker/  &&
+# docker push $1/ohmage-manage-server:$2
