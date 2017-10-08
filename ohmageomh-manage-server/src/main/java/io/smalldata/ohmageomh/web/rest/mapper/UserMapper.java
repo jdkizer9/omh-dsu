@@ -18,7 +18,7 @@ public interface UserMapper {
     UserDTO userToUserDTO(User user);
 
     List<UserDTO> usersToUserDTOs(List<User> users);
-    
+
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(target = "lastModifiedBy", ignore = true)
@@ -29,6 +29,7 @@ public interface UserMapper {
     @Mapping(target = "resetKey", ignore = true)
     @Mapping(target = "resetDate", ignore = true)
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "imageUrl", ignore = true)
     User userDTOToUser(UserDTO userDTO);
 
     List<User> userDTOsToUsers(List<UserDTO> userDTOs);

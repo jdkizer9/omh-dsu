@@ -1,5 +1,6 @@
 package io.smalldata.ohmageomh.web.rest.dto;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import java.util.Set;
@@ -36,9 +37,9 @@ public class ManagedUserDTO extends UserDTO {
     public ManagedUserDTO(User user) {
         super(user);
         this.id = user.getId();
-        this.createdDate = user.getCreatedDate();
+        this.createdDate = user.getCreatedDate().atZone(ZoneId.of("Z"));
         this.lastModifiedBy = user.getLastModifiedBy();
-        this.lastModifiedDate = user.getLastModifiedDate();
+        this.lastModifiedDate = user.getLastModifiedDate().atZone(ZoneId.of("Z"));
         this.password = null;
         this.resetKey = user.getResetKey();
     }

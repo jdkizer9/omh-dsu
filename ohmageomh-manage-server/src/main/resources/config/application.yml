@@ -16,13 +16,13 @@
 
 dataStore: mongo
 
-#management:
-#    security:
-#        roles: ADMIN
-#    context-path: /management
-#    health:
-#        mail:
-#            enabled: false # When using the MailService, configure an SMTP server and set this to true
+management:
+    security:
+        roles: ADMIN
+    context-path: /management
+    health:
+        mail:
+            enabled: false # When using the MailService, configure an SMTP server and set this to true
 spring:
     application:
         name: Ohmage
