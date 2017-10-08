@@ -5,23 +5,23 @@ import io.smalldata.ohmageomh.domain.Survey;
 import io.smalldata.ohmageomh.service.SurveyService;
 import io.smalldata.ohmageomh.web.rest.util.HeaderUtil;
 import io.smalldata.ohmageomh.web.rest.util.PaginationUtil;
+import io.swagger.annotations.ApiParam;
+import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.inject.Inject;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
@@ -34,10 +34,15 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 public class SurveyResource {
 
     private final Logger log = LoggerFactory.getLogger(SurveyResource.class);
-        
-    @Inject
-    private SurveyService surveyService;
-    
+
+    private static final String ENTITY_NAME = "survey";
+
+    private final SurveyService surveyService;
+
+    public SurveyResource(SurveyService surveyService) {
+        this.surveyService = surveyService;
+    }
+
     /**
      * POST  /surveys : Create a new survey.
      *
@@ -45,18 +50,16 @@ public class SurveyResource {
      * @return the ResponseEntity with status 201 (Created) and with body the new survey, or with status 400 (Bad Request) if the survey has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @RequestMapping(value = "/surveys",
-        method = RequestMethod.POST,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping("/surveys")
     @Timed
     public ResponseEntity<Survey> createSurvey(@Valid @RequestBody Survey survey) throws URISyntaxException {
         log.debug("REST request to save Survey : {}", survey);
         if (survey.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("survey", "idexists", "A new survey cannot already have an ID")).body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new survey cannot already have an ID")).body(null);
         }
         Survey result = surveyService.save(survey);
         return ResponseEntity.created(new URI("/api/surveys/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert("survey", result.getId().toString()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
 
@@ -66,12 +69,10 @@ public class SurveyResource {
      * @param survey the survey to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated survey,
      * or with status 400 (Bad Request) if the survey is not valid,
-     * or with status 500 (Internal Server Error) if the survey couldnt be updated
+     * or with status 500 (Internal Server Error) if the survey couldn't be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @RequestMapping(value = "/surveys",
-        method = RequestMethod.PUT,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping("/surveys")
     @Timed
     public ResponseEntity<Survey> updateSurvey(@Valid @RequestBody Survey survey) throws URISyntaxException {
         log.debug("REST request to update Survey : {}", survey);
@@ -80,7 +81,7 @@ public class SurveyResource {
         }
         Survey result = surveyService.save(survey);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert("survey", survey.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, survey.getId().toString()))
             .body(result);
     }
 
@@ -89,16 +90,12 @@ public class SurveyResource {
      *
      * @param pageable the pagination information
      * @return the ResponseEntity with status 200 (OK) and the list of surveys in body
-     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
-    @RequestMapping(value = "/surveys",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/surveys")
     @Timed
-    public ResponseEntity<List<Survey>> getAllSurveys(Pageable pageable)
-        throws URISyntaxException {
+    public ResponseEntity<List<Survey>> getAllSurveys(@ApiParam Pageable pageable) {
         log.debug("REST request to get a page of Surveys");
-        Page<Survey> page = surveyService.findAll(pageable); 
+        Page<Survey> page = surveyService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/surveys");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -109,18 +106,12 @@ public class SurveyResource {
      * @param id the id of the survey to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the survey, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/surveys/{id}",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/surveys/{id}")
     @Timed
     public ResponseEntity<Survey> getSurvey(@PathVariable Long id) {
         log.debug("REST request to get Survey : {}", id);
         Survey survey = surveyService.findOne(id);
-        return Optional.ofNullable(survey)
-            .map(result -> new ResponseEntity<>(
-                result,
-                HttpStatus.OK))
-            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(survey));
     }
 
     /**
@@ -129,14 +120,12 @@ public class SurveyResource {
      * @param id the id of the survey to delete
      * @return the ResponseEntity with status 200 (OK)
      */
-    @RequestMapping(value = "/surveys/{id}",
-        method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping("/surveys/{id}")
     @Timed
     public ResponseEntity<Void> deleteSurvey(@PathVariable Long id) {
         log.debug("REST request to delete Survey : {}", id);
         surveyService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("survey", id.toString())).build();
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
 
     /**
@@ -144,14 +133,12 @@ public class SurveyResource {
      * to the query.
      *
      * @param query the query of the survey search
+     * @param pageable the pagination information
      * @return the result of the search
      */
-    @RequestMapping(value = "/_search/surveys",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/_search/surveys")
     @Timed
-    public ResponseEntity<List<Survey>> searchSurveys(@RequestParam String query, Pageable pageable)
-        throws URISyntaxException {
+    public ResponseEntity<List<Survey>> searchSurveys(@RequestParam String query, @ApiParam Pageable pageable) {
         log.debug("REST request to search for a page of Surveys for query {}", query);
         Page<Survey> page = surveyService.search(query, pageable);
         HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(query, page, "/api/_search/surveys");

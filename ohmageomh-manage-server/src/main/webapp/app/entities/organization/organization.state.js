@@ -13,7 +13,7 @@
             parent: 'entity',
             url: '/organization?page&sort&search',
             data: {
-                authorities: ['ROLE_ADMIN'],
+                authorities: ['ROLE_USER'],
                 pageTitle: 'Organizations'
             },
             views: {
@@ -47,10 +47,10 @@
             }
         })
         .state('organization-detail', {
-            parent: 'entity',
+            parent: 'organization',
             url: '/organization/{id}',
             data: {
-                authorities: ['ROLE_ADMIN'],
+                authorities: ['ROLE_USER'],
                 pageTitle: 'Organization'
             },
             views: {
@@ -62,15 +62,48 @@
             },
             resolve: {
                 entity: ['$stateParams', 'Organization', function($stateParams, Organization) {
-                    return Organization.get({id : $stateParams.id});
+                    return Organization.get({id : $stateParams.id}).$promise;
+                }],
+                previousState: ["$state", function ($state) {
+                    var currentStateData = {
+                        name: $state.current.name || 'organization',
+                        params: $state.params,
+                        url: $state.href($state.current.name, $state.params)
+                    };
+                    return currentStateData;
                 }]
             }
+        })
+        .state('organization-detail.edit', {
+            parent: 'organization-detail',
+            url: '/detail/edit',
+            data: {
+                authorities: ['ROLE_USER']
+            },
+            onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
+                $uibModal.open({
+                    templateUrl: 'app/entities/organization/organization-dialog.html',
+                    controller: 'OrganizationDialogController',
+                    controllerAs: 'vm',
+                    backdrop: 'static',
+                    size: 'lg',
+                    resolve: {
+                        entity: ['Organization', function(Organization) {
+                            return Organization.get({id : $stateParams.id}).$promise;
+                        }]
+                    }
+                }).result.then(function() {
+                    $state.go('^', {}, { reload: false });
+                }, function() {
+                    $state.go('^');
+                });
+            }]
         })
         .state('organization.new', {
             parent: 'organization',
             url: '/new',
             data: {
-                authorities: ['ROLE_ADMIN']
+                authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
@@ -88,7 +121,7 @@
                         }
                     }
                 }).result.then(function() {
-                    $state.go('organization', null, { reload: true });
+                    $state.go('organization', null, { reload: 'organization' });
                 }, function() {
                     $state.go('organization');
                 });
@@ -98,7 +131,7 @@
             parent: 'organization',
             url: '/{id}/edit',
             data: {
-                authorities: ['ROLE_ADMIN']
+                authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
@@ -109,11 +142,11 @@
                     size: 'lg',
                     resolve: {
                         entity: ['Organization', function(Organization) {
-                            return Organization.get({id : $stateParams.id});
+                            return Organization.get({id : $stateParams.id}).$promise;
                         }]
                     }
                 }).result.then(function() {
-                    $state.go('organization', null, { reload: true });
+                    $state.go('organization', null, { reload: 'organization' });
                 }, function() {
                     $state.go('^');
                 });
@@ -123,7 +156,7 @@
             parent: 'organization',
             url: '/{id}/delete',
             data: {
-                authorities: ['ROLE_ADMIN']
+                authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
@@ -133,11 +166,11 @@
                     size: 'md',
                     resolve: {
                         entity: ['Organization', function(Organization) {
-                            return Organization.get({id : $stateParams.id});
+                            return Organization.get({id : $stateParams.id}).$promise;
                         }]
                     }
                 }).result.then(function() {
-                    $state.go('organization', null, { reload: true });
+                    $state.go('organization', null, { reload: 'organization' });
                 }, function() {
                     $state.go('^');
                 });

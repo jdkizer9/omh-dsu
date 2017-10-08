@@ -22,7 +22,8 @@ public class Study extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @SequenceGenerator(name = "sequenceGenerator")
     private Long id;
 
     @NotNull
@@ -42,20 +43,20 @@ public class Study extends AbstractAuditingEntity implements Serializable {
 
     @ManyToMany
     @JoinTable(name = "study_manager",
-               joinColumns = @JoinColumn(name="studies_id", referencedColumnName="ID"),
-               inverseJoinColumns = @JoinColumn(name="managers_id", referencedColumnName="ID"))
+               joinColumns = @JoinColumn(name="studies_id", referencedColumnName="id"),
+               inverseJoinColumns = @JoinColumn(name="managers_id", referencedColumnName="id"))
     private Set<User> managers = new HashSet<>();
 
     @ManyToMany
     @JoinTable(name = "study_survey",
-               joinColumns = @JoinColumn(name="studies_id", referencedColumnName="ID"),
-               inverseJoinColumns = @JoinColumn(name="surveys_id", referencedColumnName="ID"))
+               joinColumns = @JoinColumn(name="studies_id", referencedColumnName="id"),
+               inverseJoinColumns = @JoinColumn(name="surveys_id", referencedColumnName="id"))
     private Set<Survey> surveys = new HashSet<>();
 
     @ManyToMany
     @JoinTable(name = "study_integration",
-               joinColumns = @JoinColumn(name="studies_id", referencedColumnName="ID"),
-               inverseJoinColumns = @JoinColumn(name="integrations_id", referencedColumnName="ID"))
+               joinColumns = @JoinColumn(name="studies_id", referencedColumnName="id"),
+               inverseJoinColumns = @JoinColumn(name="integrations_id", referencedColumnName="id"))
     private Set<Integration> integrations = new HashSet<>();
 
     @ManyToMany(mappedBy = "studies")
@@ -66,6 +67,7 @@ public class Study extends AbstractAuditingEntity implements Serializable {
     @JsonIgnore
     private Set<Organization> organizations = new HashSet<>();
 
+    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
         return id;
     }
@@ -145,6 +147,7 @@ public class Study extends AbstractAuditingEntity implements Serializable {
     public void setOrganizations(Set<Organization> organizations) {
         this.organizations = organizations;
     }
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
     public boolean equals(Object o) {
@@ -155,25 +158,25 @@ public class Study extends AbstractAuditingEntity implements Serializable {
             return false;
         }
         Study study = (Study) o;
-        if(study.id == null || id == null) {
+        if (study.getId() == null || getId() == null) {
             return false;
         }
-        return Objects.equals(id, study.id);
+        return Objects.equals(getId(), study.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hashCode(getId());
     }
 
     @Override
     public String toString() {
         return "Study{" +
-            "id=" + id +
-            ", name='" + name + "'" +
-            ", removeGps='" + removeGps + "'" +
-            ", startDate='" + startDate + "'" +
-            ", endDate='" + endDate + "'" +
-            '}';
+            "id=" + getId() +
+            ", name='" + getName() + "'" +
+            ", removeGps='" + isRemoveGps() + "'" +
+            ", startDate='" + getStartDate() + "'" +
+            ", endDate='" + getEndDate() + "'" +
+            "}";
     }
 }

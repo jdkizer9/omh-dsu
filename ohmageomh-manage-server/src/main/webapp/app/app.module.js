@@ -14,15 +14,9 @@
             'ui.router',
             'infinite-scroll',
             'ds.objectDiff',
-            'ui.grid',
-            'ui.grid.exporter',
-            'ui.grid.resizeColumns',
-            'ui.grid.pagination',
             // jhipster-needle-angularjs-add-module JHipster will add new module here
-            'angular-loading-bar',
-            'ui.select',
-            'ngSanitize',
-            'mwl.calendar'])
+            'angular-loading-bar'
+        ])
         .run(run);
 
     run.$inject = ['stateHandler'];

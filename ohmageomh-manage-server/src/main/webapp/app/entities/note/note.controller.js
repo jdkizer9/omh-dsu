@@ -5,33 +5,37 @@
         .module('ohmageApp')
         .controller('NoteController', NoteController);
 
-    NoteController.$inject = ['$scope', '$state', 'Note', 'NoteSearch', 'ParseLinks', 'AlertService', 'pagingParams', 'paginationConstants'];
+    NoteController.$inject = ['$state', 'Note', 'NoteSearch', 'ParseLinks', 'AlertService', 'paginationConstants', 'pagingParams'];
 
-    function NoteController ($scope, $state, Note, NoteSearch, ParseLinks, AlertService, pagingParams, paginationConstants) {
+    function NoteController($state, Note, NoteSearch, ParseLinks, AlertService, paginationConstants, pagingParams) {
+
         var vm = this;
-        vm.loadAll = loadAll;
+
         vm.loadPage = loadPage;
         vm.predicate = pagingParams.predicate;
         vm.reverse = pagingParams.ascending;
         vm.transition = transition;
+        vm.itemsPerPage = paginationConstants.itemsPerPage;
         vm.clear = clear;
         vm.search = search;
+        vm.loadAll = loadAll;
         vm.searchQuery = pagingParams.search;
         vm.currentSearch = pagingParams.search;
-        vm.loadAll();
+
+        loadAll();
 
         function loadAll () {
             if (pagingParams.search) {
                 NoteSearch.query({
                     query: pagingParams.search,
                     page: pagingParams.page - 1,
-                    size: paginationConstants.itemsPerPage,
+                    size: vm.itemsPerPage,
                     sort: sort()
                 }, onSuccess, onError);
             } else {
                 Note.query({
                     page: pagingParams.page - 1,
-                    size: paginationConstants.itemsPerPage,
+                    size: vm.itemsPerPage,
                     sort: sort()
                 }, onSuccess, onError);
             }
@@ -54,12 +58,12 @@
             }
         }
 
-        function loadPage (page) {
+        function loadPage(page) {
             vm.page = page;
             vm.transition();
         }
 
-        function transition () {
+        function transition() {
             $state.transitionTo($state.$current, {
                 page: vm.page,
                 sort: vm.predicate + ',' + (vm.reverse ? 'asc' : 'desc'),
@@ -67,7 +71,7 @@
             });
         }
 
-        function search (searchQuery) {
+        function search(searchQuery) {
             if (!searchQuery){
                 return vm.clear();
             }
@@ -79,7 +83,7 @@
             vm.transition();
         }
 
-        function clear () {
+        function clear() {
             vm.links = null;
             vm.page = 1;
             vm.predicate = 'id';
@@ -87,6 +91,5 @@
             vm.currentSearch = null;
             vm.transition();
         }
-
     }
 })();

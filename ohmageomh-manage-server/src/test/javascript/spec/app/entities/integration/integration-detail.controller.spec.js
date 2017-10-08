@@ -4,13 +4,14 @@ describe('Controller Tests', function() {
 
     describe('Integration Management Detail Controller', function() {
         var $scope, $rootScope;
-        var MockEntity, MockIntegration, MockDataType, MockStudy;
+        var MockEntity, MockPreviousState, MockIntegration, MockDataType, MockStudy;
         var createController;
 
         beforeEach(inject(function($injector) {
             $rootScope = $injector.get('$rootScope');
             $scope = $rootScope.$new();
             MockEntity = jasmine.createSpy('MockEntity');
+            MockPreviousState = jasmine.createSpy('MockPreviousState');
             MockIntegration = jasmine.createSpy('MockIntegration');
             MockDataType = jasmine.createSpy('MockDataType');
             MockStudy = jasmine.createSpy('MockStudy');
@@ -19,7 +20,8 @@ describe('Controller Tests', function() {
             var locals = {
                 '$scope': $scope,
                 '$rootScope': $rootScope,
-                'entity': MockEntity ,
+                'entity': MockEntity,
+                'previousState': MockPreviousState,
                 'Integration': MockIntegration,
                 'DataType': MockDataType,
                 'Study': MockStudy

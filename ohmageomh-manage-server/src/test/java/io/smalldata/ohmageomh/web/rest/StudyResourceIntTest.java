@@ -1,52 +1,48 @@
 package io.smalldata.ohmageomh.web.rest;
 
 import io.smalldata.ohmageomh.OhmageApp;
+
 import io.smalldata.ohmageomh.domain.Study;
 import io.smalldata.ohmageomh.repository.StudyRepository;
 import io.smalldata.ohmageomh.service.StudyService;
 import io.smalldata.ohmageomh.repository.search.StudySearchRepository;
+import io.smalldata.ohmageomh.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.hamcrest.Matchers.hasItem;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 
 /**
  * Test class for the StudyResource REST controller.
  *
  * @see StudyResource
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = OhmageApp.class)
-@WebAppConfiguration
-@IntegrationTest
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = OhmageApp.class)
 public class StudyResourceIntTest {
 
-    private static final String DEFAULT_NAME = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private static final String UPDATED_NAME = "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB";
+    private static final String DEFAULT_NAME = "AAAAAAAAAA";
+    private static final String UPDATED_NAME = "BBBBBBBBBB";
 
     private static final Boolean DEFAULT_REMOVE_GPS = false;
     private static final Boolean UPDATED_REMOVE_GPS = true;
@@ -57,43 +53,60 @@ public class StudyResourceIntTest {
     private static final LocalDate DEFAULT_END_DATE = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_END_DATE = LocalDate.now(ZoneId.systemDefault());
 
-    @Inject
+    @Autowired
     private StudyRepository studyRepository;
 
-    @Inject
+    @Autowired
     private StudyService studyService;
 
-    @Inject
+    @Autowired
     private StudySearchRepository studySearchRepository;
 
-    @Inject
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
-    @Inject
+    @Autowired
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
+
+    @Autowired
+    private ExceptionTranslator exceptionTranslator;
+
+    @Autowired
+    private EntityManager em;
 
     private MockMvc restStudyMockMvc;
 
     private Study study;
 
-    @PostConstruct
+    @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        StudyResource studyResource = new StudyResource();
-        ReflectionTestUtils.setField(studyResource, "studyService", studyService);
+        final StudyResource studyResource = new StudyResource(studyService);
         this.restStudyMockMvc = MockMvcBuilders.standaloneSetup(studyResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
+            .setControllerAdvice(exceptionTranslator)
             .setMessageConverters(jacksonMessageConverter).build();
+    }
+
+    /**
+     * Create an entity for this test.
+     *
+     * This is a static method, as tests for other entities might also need it,
+     * if they test an entity which requires the current entity.
+     */
+    public static Study createEntity(EntityManager em) {
+        Study study = new Study();
+        study.setName(DEFAULT_NAME);
+        study.setRemoveGps(DEFAULT_REMOVE_GPS);
+        study.setStartDate(DEFAULT_START_DATE);
+        study.setEndDate(DEFAULT_END_DATE);
+        return study;
     }
 
     @Before
     public void initTest() {
         studySearchRepository.deleteAll();
-        study = new Study();
-        study.setName(DEFAULT_NAME);
-        study.setRemoveGps(DEFAULT_REMOVE_GPS);
-        study.setStartDate(DEFAULT_START_DATE);
-        study.setEndDate(DEFAULT_END_DATE);
+        study = createEntity(em);
     }
 
     @Test
@@ -102,24 +115,42 @@ public class StudyResourceIntTest {
         int databaseSizeBeforeCreate = studyRepository.findAll().size();
 
         // Create the Study
-
         restStudyMockMvc.perform(post("/api/studies")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(study)))
-                .andExpect(status().isCreated());
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(study)))
+            .andExpect(status().isCreated());
 
         // Validate the Study in the database
-        List<Study> studies = studyRepository.findAll();
-        assertThat(studies).hasSize(databaseSizeBeforeCreate + 1);
-        Study testStudy = studies.get(studies.size() - 1);
+        List<Study> studyList = studyRepository.findAll();
+        assertThat(studyList).hasSize(databaseSizeBeforeCreate + 1);
+        Study testStudy = studyList.get(studyList.size() - 1);
         assertThat(testStudy.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testStudy.isRemoveGps()).isEqualTo(DEFAULT_REMOVE_GPS);
         assertThat(testStudy.getStartDate()).isEqualTo(DEFAULT_START_DATE);
         assertThat(testStudy.getEndDate()).isEqualTo(DEFAULT_END_DATE);
 
-        // Validate the Study in ElasticSearch
+        // Validate the Study in Elasticsearch
         Study studyEs = studySearchRepository.findOne(testStudy.getId());
         assertThat(studyEs).isEqualToComparingFieldByField(testStudy);
+    }
+
+    @Test
+    @Transactional
+    public void createStudyWithExistingId() throws Exception {
+        int databaseSizeBeforeCreate = studyRepository.findAll().size();
+
+        // Create the Study with an existing ID
+        study.setId(1L);
+
+        // An entity with an existing ID cannot be created, so this API call must fail
+        restStudyMockMvc.perform(post("/api/studies")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(study)))
+            .andExpect(status().isBadRequest());
+
+        // Validate the Study in the database
+        List<Study> studyList = studyRepository.findAll();
+        assertThat(studyList).hasSize(databaseSizeBeforeCreate);
     }
 
     @Test
@@ -132,12 +163,12 @@ public class StudyResourceIntTest {
         // Create the Study, which fails.
 
         restStudyMockMvc.perform(post("/api/studies")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(study)))
-                .andExpect(status().isBadRequest());
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(study)))
+            .andExpect(status().isBadRequest());
 
-        List<Study> studies = studyRepository.findAll();
-        assertThat(studies).hasSize(databaseSizeBeforeTest);
+        List<Study> studyList = studyRepository.findAll();
+        assertThat(studyList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
@@ -150,12 +181,12 @@ public class StudyResourceIntTest {
         // Create the Study, which fails.
 
         restStudyMockMvc.perform(post("/api/studies")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(study)))
-                .andExpect(status().isBadRequest());
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(study)))
+            .andExpect(status().isBadRequest());
 
-        List<Study> studies = studyRepository.findAll();
-        assertThat(studies).hasSize(databaseSizeBeforeTest);
+        List<Study> studyList = studyRepository.findAll();
+        assertThat(studyList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
@@ -164,15 +195,15 @@ public class StudyResourceIntTest {
         // Initialize the database
         studyRepository.saveAndFlush(study);
 
-        // Get all the studies
+        // Get all the studyList
         restStudyMockMvc.perform(get("/api/studies?sort=id,desc"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.[*].id").value(hasItem(study.getId().intValue())))
-                .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
-                .andExpect(jsonPath("$.[*].removeGps").value(hasItem(DEFAULT_REMOVE_GPS.booleanValue())))
-                .andExpect(jsonPath("$.[*].startDate").value(hasItem(DEFAULT_START_DATE.toString())))
-                .andExpect(jsonPath("$.[*].endDate").value(hasItem(DEFAULT_END_DATE.toString())));
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(study.getId().intValue())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
+            .andExpect(jsonPath("$.[*].removeGps").value(hasItem(DEFAULT_REMOVE_GPS.booleanValue())))
+            .andExpect(jsonPath("$.[*].startDate").value(hasItem(DEFAULT_START_DATE.toString())))
+            .andExpect(jsonPath("$.[*].endDate").value(hasItem(DEFAULT_END_DATE.toString())));
     }
 
     @Test
@@ -184,7 +215,7 @@ public class StudyResourceIntTest {
         // Get the study
         restStudyMockMvc.perform(get("/api/studies/{id}", study.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(study.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()))
             .andExpect(jsonPath("$.removeGps").value(DEFAULT_REMOVE_GPS.booleanValue()))
@@ -197,7 +228,7 @@ public class StudyResourceIntTest {
     public void getNonExistingStudy() throws Exception {
         // Get the study
         restStudyMockMvc.perform(get("/api/studies/{id}", Long.MAX_VALUE))
-                .andExpect(status().isNotFound());
+            .andExpect(status().isNotFound());
     }
 
     @Test
@@ -209,30 +240,47 @@ public class StudyResourceIntTest {
         int databaseSizeBeforeUpdate = studyRepository.findAll().size();
 
         // Update the study
-        Study updatedStudy = new Study();
-        updatedStudy.setId(study.getId());
+        Study updatedStudy = studyRepository.findOne(study.getId());
         updatedStudy.setName(UPDATED_NAME);
         updatedStudy.setRemoveGps(UPDATED_REMOVE_GPS);
         updatedStudy.setStartDate(UPDATED_START_DATE);
         updatedStudy.setEndDate(UPDATED_END_DATE);
 
         restStudyMockMvc.perform(put("/api/studies")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(updatedStudy)))
-                .andExpect(status().isOk());
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(updatedStudy)))
+            .andExpect(status().isOk());
 
         // Validate the Study in the database
-        List<Study> studies = studyRepository.findAll();
-        assertThat(studies).hasSize(databaseSizeBeforeUpdate);
-        Study testStudy = studies.get(studies.size() - 1);
+        List<Study> studyList = studyRepository.findAll();
+        assertThat(studyList).hasSize(databaseSizeBeforeUpdate);
+        Study testStudy = studyList.get(studyList.size() - 1);
         assertThat(testStudy.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testStudy.isRemoveGps()).isEqualTo(UPDATED_REMOVE_GPS);
         assertThat(testStudy.getStartDate()).isEqualTo(UPDATED_START_DATE);
         assertThat(testStudy.getEndDate()).isEqualTo(UPDATED_END_DATE);
 
-        // Validate the Study in ElasticSearch
+        // Validate the Study in Elasticsearch
         Study studyEs = studySearchRepository.findOne(testStudy.getId());
         assertThat(studyEs).isEqualToComparingFieldByField(testStudy);
+    }
+
+    @Test
+    @Transactional
+    public void updateNonExistingStudy() throws Exception {
+        int databaseSizeBeforeUpdate = studyRepository.findAll().size();
+
+        // Create the Study
+
+        // If the entity doesn't have an ID, it will be created instead of just being updated
+        restStudyMockMvc.perform(put("/api/studies")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(study)))
+            .andExpect(status().isCreated());
+
+        // Validate the Study in the database
+        List<Study> studyList = studyRepository.findAll();
+        assertThat(studyList).hasSize(databaseSizeBeforeUpdate + 1);
     }
 
     @Test
@@ -245,16 +293,16 @@ public class StudyResourceIntTest {
 
         // Get the study
         restStudyMockMvc.perform(delete("/api/studies/{id}", study.getId())
-                .accept(TestUtil.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk());
+            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(status().isOk());
 
-        // Validate ElasticSearch is empty
+        // Validate Elasticsearch is empty
         boolean studyExistsInEs = studySearchRepository.exists(study.getId());
         assertThat(studyExistsInEs).isFalse();
 
         // Validate the database is empty
-        List<Study> studies = studyRepository.findAll();
-        assertThat(studies).hasSize(databaseSizeBeforeDelete - 1);
+        List<Study> studyList = studyRepository.findAll();
+        assertThat(studyList).hasSize(databaseSizeBeforeDelete - 1);
     }
 
     @Test
@@ -266,11 +314,26 @@ public class StudyResourceIntTest {
         // Search the study
         restStudyMockMvc.perform(get("/api/_search/studies?query=id:" + study.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(study.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
             .andExpect(jsonPath("$.[*].removeGps").value(hasItem(DEFAULT_REMOVE_GPS.booleanValue())))
             .andExpect(jsonPath("$.[*].startDate").value(hasItem(DEFAULT_START_DATE.toString())))
             .andExpect(jsonPath("$.[*].endDate").value(hasItem(DEFAULT_END_DATE.toString())));
+    }
+
+    @Test
+    @Transactional
+    public void equalsVerifier() throws Exception {
+        TestUtil.equalsVerifier(Study.class);
+        Study study1 = new Study();
+        study1.setId(1L);
+        Study study2 = new Study();
+        study2.setId(study1.getId());
+        assertThat(study1).isEqualTo(study2);
+        study2.setId(2L);
+        assertThat(study1).isNotEqualTo(study2);
+        study1.setId(null);
+        assertThat(study1).isNotEqualTo(study2);
     }
 }

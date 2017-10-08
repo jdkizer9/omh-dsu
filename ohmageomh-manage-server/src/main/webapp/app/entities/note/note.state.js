@@ -13,7 +13,7 @@
             parent: 'entity',
             url: '/note?page&sort&search',
             data: {
-                authorities: ['ROLE_ADMIN'],
+                authorities: ['ROLE_USER'],
                 pageTitle: 'Notes'
             },
             views: {
@@ -47,10 +47,10 @@
             }
         })
         .state('note-detail', {
-            parent: 'entity',
+            parent: 'note',
             url: '/note/{id}',
             data: {
-                authorities: ['ROLE_ADMIN'],
+                authorities: ['ROLE_USER'],
                 pageTitle: 'Note'
             },
             views: {
@@ -62,15 +62,48 @@
             },
             resolve: {
                 entity: ['$stateParams', 'Note', function($stateParams, Note) {
-                    return Note.get({id : $stateParams.id});
+                    return Note.get({id : $stateParams.id}).$promise;
+                }],
+                previousState: ["$state", function ($state) {
+                    var currentStateData = {
+                        name: $state.current.name || 'note',
+                        params: $state.params,
+                        url: $state.href($state.current.name, $state.params)
+                    };
+                    return currentStateData;
                 }]
             }
+        })
+        .state('note-detail.edit', {
+            parent: 'note-detail',
+            url: '/detail/edit',
+            data: {
+                authorities: ['ROLE_USER']
+            },
+            onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
+                $uibModal.open({
+                    templateUrl: 'app/entities/note/note-dialog.html',
+                    controller: 'NoteDialogController',
+                    controllerAs: 'vm',
+                    backdrop: 'static',
+                    size: 'lg',
+                    resolve: {
+                        entity: ['Note', function(Note) {
+                            return Note.get({id : $stateParams.id}).$promise;
+                        }]
+                    }
+                }).result.then(function() {
+                    $state.go('^', {}, { reload: false });
+                }, function() {
+                    $state.go('^');
+                });
+            }]
         })
         .state('note.new', {
             parent: 'note',
             url: '/new',
             data: {
-                authorities: ['ROLE_ADMIN']
+                authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
@@ -89,7 +122,7 @@
                         }
                     }
                 }).result.then(function() {
-                    $state.go('note', null, { reload: true });
+                    $state.go('note', null, { reload: 'note' });
                 }, function() {
                     $state.go('note');
                 });
@@ -99,7 +132,7 @@
             parent: 'note',
             url: '/{id}/edit',
             data: {
-                authorities: ['ROLE_ADMIN']
+                authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
@@ -110,11 +143,11 @@
                     size: 'lg',
                     resolve: {
                         entity: ['Note', function(Note) {
-                            return Note.get({id : $stateParams.id});
+                            return Note.get({id : $stateParams.id}).$promise;
                         }]
                     }
                 }).result.then(function() {
-                    $state.go('note', null, { reload: true });
+                    $state.go('note', null, { reload: 'note' });
                 }, function() {
                     $state.go('^');
                 });
@@ -124,7 +157,7 @@
             parent: 'note',
             url: '/{id}/delete',
             data: {
-                authorities: ['ROLE_ADMIN']
+                authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
@@ -134,11 +167,11 @@
                     size: 'md',
                     resolve: {
                         entity: ['Note', function(Note) {
-                            return Note.get({id : $stateParams.id});
+                            return Note.get({id : $stateParams.id}).$promise;
                         }]
                     }
                 }).result.then(function() {
-                    $state.go('note', null, { reload: true });
+                    $state.go('note', null, { reload: 'note' });
                 }, function() {
                     $state.go('^');
                 });

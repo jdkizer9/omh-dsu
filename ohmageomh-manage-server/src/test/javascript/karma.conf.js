@@ -1,5 +1,7 @@
-// Karma configuration
-// http://karma-runner.github.io/0.10/config/configuration-file.html
+var ChromiumRevision = require('puppeteer/package.json').puppeteer.chromium_revision;
+var Downloader = require('puppeteer/utils/ChromiumDownloader');
+var revisionInfo = Downloader.revisionInfo(Downloader.currentPlatform(), ChromiumRevision);
+process.env.CHROMIUM_BIN = revisionInfo.executablePath;
 
 var sourcePreprocessors = ['coverage'];
 
@@ -15,7 +17,7 @@ if (isDebug()) {
 module.exports = function (config) {
     config.set({
         // base path, that will be used to resolve files and exclude
-        basePath: 'src/test/javascript/'.replace(/[^/]+/g,'..'),
+        basePath: 'src/test/javascript/'.replace(/[^/]+/g, '..'),
 
         // testing framework to use (jasmine/mocha/qunit/...)
         frameworks: ['jasmine'],
@@ -24,6 +26,8 @@ module.exports = function (config) {
         files: [
             // bower:js
             'src/main/webapp/bower_components/jquery/dist/jquery.js',
+            'src/main/webapp/bower_components/json3/lib/json3.js',
+            'src/main/webapp/bower_components/messageformat/messageformat.js',
             'src/main/webapp/bower_components/angular/angular.js',
             'src/main/webapp/bower_components/angular-aria/angular-aria.js',
             'src/main/webapp/bower_components/angular-bootstrap/ui-bootstrap-tpls.js',
@@ -35,16 +39,8 @@ module.exports = function (config) {
             'src/main/webapp/bower_components/angular-sanitize/angular-sanitize.js',
             'src/main/webapp/bower_components/angular-ui-router/release/angular-ui-router.js',
             'src/main/webapp/bower_components/bootstrap-ui-datetime-picker/dist/datetime-picker.js',
-            'src/main/webapp/bower_components/json3/lib/json3.js',
-            'src/main/webapp/bower_components/messageformat/messageformat.js',
             'src/main/webapp/bower_components/ng-file-upload/ng-file-upload.js',
             'src/main/webapp/bower_components/ngInfiniteScroll/build/ng-infinite-scroll.js',
-            'src/main/webapp/bower_components/angular-object-diff/dist/angular-object-diff.js',
-            'src/main/webapp/bower_components/angular-ui-grid/ui-grid.js',
-            'src/main/webapp/bower_components/angular-ui-select/dist/select.js',
-            'src/main/webapp/bower_components/underscore/underscore.js',
-            'src/main/webapp/bower_components/moment/moment.js',
-            'src/main/webapp/bower_components/angular-bootstrap-calendar/dist/js/angular-bootstrap-calendar-tpls.js',
             'src/main/webapp/bower_components/angular-mocks/angular-mocks.js',
             // endbower
             'src/main/webapp/app/app.module.js',
@@ -64,15 +60,13 @@ module.exports = function (config) {
             './**/*.js': sourcePreprocessors
         },
 
-        reporters: ['dots', 'jenkins', 'coverage', 'progress'],
+        reporters: ['dots', 'junit', 'coverage', 'progress'],
 
-        jenkinsReporter: {
-            
-            outputFile: 'build/test-results/karma/TESTS-results.xml'
+        junitReporter: {
+            outputFile: '../build/test-results/karma/TESTS-results.xml'
         },
 
         coverageReporter: {
-            
             dir: 'build/test-results/coverage',
             reporters: [
                 {type: 'lcov', subdir: 'report-lcov'}
@@ -95,17 +89,16 @@ module.exports = function (config) {
         // - Firefox
         // - Opera
         // - Safari (only Mac)
-        // - PhantomJS
         // - IE (only Windows)
-        browsers: ['PhantomJS'],
+        browsers: ['ChromiumHeadless'],
 
         // Continuous Integration mode
         // if true, it capture browsers, run tests and exit
         singleRun: false,
 
         // to avoid DISCONNECTED messages when connecting to slow virtual machines
-        browserDisconnectTimeout : 10000, // default 2000
-        browserDisconnectTolerance : 1, // default 0
-        browserNoActivityTimeout : 4*60*1000 //default 10000
+        browserDisconnectTimeout: 10000, // default 2000
+        browserDisconnectTolerance: 1, // default 0
+        browserNoActivityTimeout: 4 * 60 * 1000 //default 10000
     });
 };

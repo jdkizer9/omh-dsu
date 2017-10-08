@@ -4,7 +4,7 @@
     angular
         .module('ohmageApp')
         .filter('characters', characters);
-        
+
     function characters () {
         return charactersFilter;
 

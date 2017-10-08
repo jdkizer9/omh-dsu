@@ -13,7 +13,7 @@
             parent: 'entity',
             url: '/integration?page&sort&search',
             data: {
-                authorities: ['ROLE_ADMIN'],
+                authorities: ['ROLE_USER'],
                 pageTitle: 'Integrations'
             },
             views: {
@@ -47,10 +47,10 @@
             }
         })
         .state('integration-detail', {
-            parent: 'entity',
+            parent: 'integration',
             url: '/integration/{id}',
             data: {
-                authorities: ['ROLE_ADMIN'],
+                authorities: ['ROLE_USER'],
                 pageTitle: 'Integration'
             },
             views: {
@@ -62,15 +62,48 @@
             },
             resolve: {
                 entity: ['$stateParams', 'Integration', function($stateParams, Integration) {
-                    return Integration.get({id : $stateParams.id});
+                    return Integration.get({id : $stateParams.id}).$promise;
+                }],
+                previousState: ["$state", function ($state) {
+                    var currentStateData = {
+                        name: $state.current.name || 'integration',
+                        params: $state.params,
+                        url: $state.href($state.current.name, $state.params)
+                    };
+                    return currentStateData;
                 }]
             }
+        })
+        .state('integration-detail.edit', {
+            parent: 'integration-detail',
+            url: '/detail/edit',
+            data: {
+                authorities: ['ROLE_USER']
+            },
+            onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
+                $uibModal.open({
+                    templateUrl: 'app/entities/integration/integration-dialog.html',
+                    controller: 'IntegrationDialogController',
+                    controllerAs: 'vm',
+                    backdrop: 'static',
+                    size: 'lg',
+                    resolve: {
+                        entity: ['Integration', function(Integration) {
+                            return Integration.get({id : $stateParams.id}).$promise;
+                        }]
+                    }
+                }).result.then(function() {
+                    $state.go('^', {}, { reload: false });
+                }, function() {
+                    $state.go('^');
+                });
+            }]
         })
         .state('integration.new', {
             parent: 'integration',
             url: '/new',
             data: {
-                authorities: ['ROLE_ADMIN']
+                authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
@@ -89,7 +122,7 @@
                         }
                     }
                 }).result.then(function() {
-                    $state.go('integration', null, { reload: true });
+                    $state.go('integration', null, { reload: 'integration' });
                 }, function() {
                     $state.go('integration');
                 });
@@ -99,7 +132,7 @@
             parent: 'integration',
             url: '/{id}/edit',
             data: {
-                authorities: ['ROLE_ADMIN']
+                authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
@@ -110,11 +143,11 @@
                     size: 'lg',
                     resolve: {
                         entity: ['Integration', function(Integration) {
-                            return Integration.get({id : $stateParams.id});
+                            return Integration.get({id : $stateParams.id}).$promise;
                         }]
                     }
                 }).result.then(function() {
-                    $state.go('integration', null, { reload: true });
+                    $state.go('integration', null, { reload: 'integration' });
                 }, function() {
                     $state.go('^');
                 });
@@ -124,7 +157,7 @@
             parent: 'integration',
             url: '/{id}/delete',
             data: {
-                authorities: ['ROLE_ADMIN']
+                authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
@@ -134,11 +167,11 @@
                     size: 'md',
                     resolve: {
                         entity: ['Integration', function(Integration) {
-                            return Integration.get({id : $stateParams.id});
+                            return Integration.get({id : $stateParams.id}).$promise;
                         }]
                     }
                 }).result.then(function() {
-                    $state.go('integration', null, { reload: true });
+                    $state.go('integration', null, { reload: 'integration' });
                 }, function() {
                     $state.go('^');
                 });

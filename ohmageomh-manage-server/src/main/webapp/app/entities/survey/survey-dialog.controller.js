@@ -9,34 +9,39 @@
 
     function SurveyDialogController ($timeout, $scope, $stateParams, $uibModalInstance, entity, Survey, Study) {
         var vm = this;
+
         vm.survey = entity;
+        vm.clear = clear;
+        vm.save = save;
         vm.studies = Study.query();
 
         $timeout(function (){
             angular.element('.form-group:eq(1)>input').focus();
         });
 
-        var onSaveSuccess = function (result) {
-            $scope.$emit('ohmageApp:surveyUpdate', result);
-            $uibModalInstance.close(result);
-            vm.isSaving = false;
-        };
+        function clear () {
+            $uibModalInstance.dismiss('cancel');
+        }
 
-        var onSaveError = function () {
-            vm.isSaving = false;
-        };
-
-        vm.save = function () {
+        function save () {
             vm.isSaving = true;
             if (vm.survey.id !== null) {
                 Survey.update(vm.survey, onSaveSuccess, onSaveError);
             } else {
                 Survey.save(vm.survey, onSaveSuccess, onSaveError);
             }
-        };
+        }
 
-        vm.clear = function() {
-            $uibModalInstance.dismiss('cancel');
-        };
+        function onSaveSuccess (result) {
+            $scope.$emit('ohmageApp:surveyUpdate', result);
+            $uibModalInstance.close(result);
+            vm.isSaving = false;
+        }
+
+        function onSaveError () {
+            vm.isSaving = false;
+        }
+
+
     }
 })();

@@ -1,6 +1,5 @@
 package io.smalldata.ohmageomh.service.impl;
 
-import io.smalldata.ohmageomh.domain.User;
 import io.smalldata.ohmageomh.service.StudyService;
 import io.smalldata.ohmageomh.domain.Study;
 import io.smalldata.ohmageomh.repository.StudyRepository;
@@ -9,13 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
@@ -28,11 +23,14 @@ public class StudyServiceImpl implements StudyService{
 
     private final Logger log = LoggerFactory.getLogger(StudyServiceImpl.class);
 
-    @Inject
-    private StudyRepository studyRepository;
+    private final StudyRepository studyRepository;
 
-    @Inject
-    private StudySearchRepository studySearchRepository;
+    private final StudySearchRepository studySearchRepository;
+
+    public StudyServiceImpl(StudyRepository studyRepository, StudySearchRepository studySearchRepository) {
+        this.studyRepository = studyRepository;
+        this.studySearchRepository = studySearchRepository;
+    }
 
     /**
      * Save a study.
@@ -40,6 +38,7 @@ public class StudyServiceImpl implements StudyService{
      * @param study the entity to save
      * @return the persisted entity
      */
+    @Override
     public Study save(Study study) {
         log.debug("Request to save Study : {}", study);
         Study result = studyRepository.save(study);
@@ -53,24 +52,11 @@ public class StudyServiceImpl implements StudyService{
      *  @param pageable the pagination information
      *  @return the list of entities
      */
+    @Override
     @Transactional(readOnly = true)
     public Page<Study> findAll(Pageable pageable) {
         log.debug("Request to get all Studies");
-        Page<Study> result = studyRepository.findAll(pageable);
-        return result;
-    }
-
-    /**
-     *  Get all the studies a manager has access to.
-     *
-     *  @param pageable the pagination information
-     *  @return the list of entities
-     */
-    @Transactional(readOnly = true)
-    public Page<Study> findAllByManager(User user, Pageable pageable) {
-        log.debug("Request to get all Studies");
-        Page<Study> result = studyRepository.findAllByManagers(user, pageable);
-        return result;
+        return studyRepository.findAll(pageable);
     }
 
     /**
@@ -79,11 +65,11 @@ public class StudyServiceImpl implements StudyService{
      *  @param id the id of the entity
      *  @return the entity
      */
+    @Override
     @Transactional(readOnly = true)
     public Study findOne(Long id) {
         log.debug("Request to get Study : {}", id);
-        Study study = studyRepository.findOneWithEagerRelationships(id);
-        return study;
+        return studyRepository.findOneWithEagerRelationships(id);
     }
 
     /**
@@ -91,6 +77,7 @@ public class StudyServiceImpl implements StudyService{
      *
      *  @param id the id of the entity
      */
+    @Override
     public void delete(Long id) {
         log.debug("Request to delete Study : {}", id);
         studyRepository.delete(id);
@@ -101,11 +88,14 @@ public class StudyServiceImpl implements StudyService{
      * Search for the study corresponding to the query.
      *
      *  @param query the query of the search
+     *  @param pageable the pagination information
      *  @return the list of entities
      */
+    @Override
     @Transactional(readOnly = true)
     public Page<Study> search(String query, Pageable pageable) {
         log.debug("Request to search for a page of Studies for query {}", query);
-        return studySearchRepository.search(queryStringQuery(query), pageable);
+        Page<Study> result = studySearchRepository.search(queryStringQuery(query), pageable);
+        return result;
     }
 }

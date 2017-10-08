@@ -2,7 +2,7 @@
 <databaseChangeLog
     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
     <!--
         Added the constraints for entity Integration.
     -->
@@ -10,12 +10,12 @@
         
         <addForeignKeyConstraint baseColumnNames="integrations_id"
                                  baseTableName="integration_data_type"
-                                 constraintName="fk_integration_data_type_datatype_id"
+                                 constraintName="fk_integration_data_type_integrations_id"
                                  referencedColumnNames="id"
                                  referencedTableName="integration"/>
         <addForeignKeyConstraint baseColumnNames="data_types_id"
                                  baseTableName="integration_data_type"
-                                 constraintName="fk_integration_data_type_integration_id"
+                                 constraintName="fk_integration_data_type_data_types_id"
                                  referencedColumnNames="id"
                                  referencedTableName="data_type"/>
         

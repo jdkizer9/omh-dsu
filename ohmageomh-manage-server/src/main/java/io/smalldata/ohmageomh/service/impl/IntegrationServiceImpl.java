@@ -8,13 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
@@ -26,19 +22,23 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 public class IntegrationServiceImpl implements IntegrationService{
 
     private final Logger log = LoggerFactory.getLogger(IntegrationServiceImpl.class);
-    
-    @Inject
-    private IntegrationRepository integrationRepository;
-    
-    @Inject
-    private IntegrationSearchRepository integrationSearchRepository;
-    
+
+    private final IntegrationRepository integrationRepository;
+
+    private final IntegrationSearchRepository integrationSearchRepository;
+
+    public IntegrationServiceImpl(IntegrationRepository integrationRepository, IntegrationSearchRepository integrationSearchRepository) {
+        this.integrationRepository = integrationRepository;
+        this.integrationSearchRepository = integrationSearchRepository;
+    }
+
     /**
      * Save a integration.
-     * 
+     *
      * @param integration the entity to save
      * @return the persisted entity
      */
+    @Override
     public Integration save(Integration integration) {
         log.debug("Request to save Integration : {}", integration);
         Integration result = integrationRepository.save(integration);
@@ -48,15 +48,15 @@ public class IntegrationServiceImpl implements IntegrationService{
 
     /**
      *  Get all the integrations.
-     *  
+     *
      *  @param pageable the pagination information
      *  @return the list of entities
      */
-    @Transactional(readOnly = true) 
+    @Override
+    @Transactional(readOnly = true)
     public Page<Integration> findAll(Pageable pageable) {
         log.debug("Request to get all Integrations");
-        Page<Integration> result = integrationRepository.findAll(pageable); 
-        return result;
+        return integrationRepository.findAll(pageable);
     }
 
     /**
@@ -65,18 +65,19 @@ public class IntegrationServiceImpl implements IntegrationService{
      *  @param id the id of the entity
      *  @return the entity
      */
-    @Transactional(readOnly = true) 
+    @Override
+    @Transactional(readOnly = true)
     public Integration findOne(Long id) {
         log.debug("Request to get Integration : {}", id);
-        Integration integration = integrationRepository.findOneWithEagerRelationships(id);
-        return integration;
+        return integrationRepository.findOneWithEagerRelationships(id);
     }
 
     /**
      *  Delete the  integration by id.
-     *  
+     *
      *  @param id the id of the entity
      */
+    @Override
     public void delete(Long id) {
         log.debug("Request to delete Integration : {}", id);
         integrationRepository.delete(id);
@@ -87,11 +88,14 @@ public class IntegrationServiceImpl implements IntegrationService{
      * Search for the integration corresponding to the query.
      *
      *  @param query the query of the search
+     *  @param pageable the pagination information
      *  @return the list of entities
      */
+    @Override
     @Transactional(readOnly = true)
     public Page<Integration> search(String query, Pageable pageable) {
         log.debug("Request to search for a page of Integrations for query {}", query);
-        return integrationSearchRepository.search(queryStringQuery(query), pageable);
+        Page<Integration> result = integrationSearchRepository.search(queryStringQuery(query), pageable);
+        return result;
     }
 }

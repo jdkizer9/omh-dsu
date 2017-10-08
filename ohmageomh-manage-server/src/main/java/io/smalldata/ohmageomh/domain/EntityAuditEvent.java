@@ -3,14 +3,12 @@ package io.smalldata.ohmageomh.domain;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import java.time.ZonedDateTime;
-
+import java.time.Instant;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Objects;
-
 
 @Entity
 @Table(name = "jhi_entity_audit_event")
@@ -20,7 +18,8 @@ public class EntityAuditEvent implements Serializable{
     private static final long serialVersionUID = 1L;
     
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @SequenceGenerator(name = "sequenceGenerator")
     private Long id;
 
     @NotNull
@@ -50,9 +49,8 @@ public class EntityAuditEvent implements Serializable{
 
     @NotNull
     @Column(name = "modified_date", nullable = false)
-    private ZonedDateTime modifiedDate;
+    private Instant modifiedDate;
     
-
     
     public Long getId() {
         return id;
@@ -110,11 +108,11 @@ public class EntityAuditEvent implements Serializable{
         this.modifiedBy = modifiedBy;
     }
 
-    public ZonedDateTime getModifiedDate() {
+    public Instant getModifiedDate() {
         return modifiedDate;
     }
 
-    public void setModifiedDate(ZonedDateTime modifiedDate) {
+    public void setModifiedDate(Instant modifiedDate) {
         this.modifiedDate = modifiedDate;
     }
 

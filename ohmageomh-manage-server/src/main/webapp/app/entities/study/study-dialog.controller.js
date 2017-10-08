@@ -9,46 +9,50 @@
 
     function StudyDialogController ($timeout, $scope, $stateParams, $uibModalInstance, entity, Study, User, Survey, Integration, Participant, Organization) {
         var vm = this;
+
         vm.study = entity;
-        vm.users = User.query({size: 5000});
-        vm.surveys = Survey.query({size: 5000});
-        vm.integrations = Integration.query({size: 5000});
+        vm.clear = clear;
+        vm.datePickerOpenStatus = {};
+        vm.openCalendar = openCalendar;
+        vm.save = save;
+        vm.users = User.query();
+        vm.surveys = Survey.query();
+        vm.integrations = Integration.query();
         vm.participants = Participant.query();
-        vm.organizations = Organization.query({size: 5000});
+        vm.organizations = Organization.query();
 
         $timeout(function (){
             angular.element('.form-group:eq(1)>input').focus();
         });
 
-        var onSaveSuccess = function (result) {
-            $scope.$emit('ohmageApp:studyUpdate', result);
-            $uibModalInstance.close(result);
-            vm.isSaving = false;
-        };
+        function clear () {
+            $uibModalInstance.dismiss('cancel');
+        }
 
-        var onSaveError = function () {
-            vm.isSaving = false;
-        };
-
-        vm.save = function () {
+        function save () {
             vm.isSaving = true;
             if (vm.study.id !== null) {
                 Study.update(vm.study, onSaveSuccess, onSaveError);
             } else {
                 Study.save(vm.study, onSaveSuccess, onSaveError);
             }
-        };
+        }
 
-        vm.clear = function() {
-            $uibModalInstance.dismiss('cancel');
-        };
+        function onSaveSuccess (result) {
+            $scope.$emit('ohmageApp:studyUpdate', result);
+            $uibModalInstance.close(result);
+            vm.isSaving = false;
+        }
 
-        vm.datePickerOpenStatus = {};
+        function onSaveError () {
+            vm.isSaving = false;
+        }
+
         vm.datePickerOpenStatus.startDate = false;
         vm.datePickerOpenStatus.endDate = false;
 
-        vm.openCalendar = function(date) {
+        function openCalendar (date) {
             vm.datePickerOpenStatus[date] = true;
-        };
+        }
     }
 })();

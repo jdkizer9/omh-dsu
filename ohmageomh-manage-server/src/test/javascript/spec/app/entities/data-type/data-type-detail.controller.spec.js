@@ -4,13 +4,14 @@ describe('Controller Tests', function() {
 
     describe('DataType Management Detail Controller', function() {
         var $scope, $rootScope;
-        var MockEntity, MockDataType, MockIntegration;
+        var MockEntity, MockPreviousState, MockDataType, MockIntegration;
         var createController;
 
         beforeEach(inject(function($injector) {
             $rootScope = $injector.get('$rootScope');
             $scope = $rootScope.$new();
             MockEntity = jasmine.createSpy('MockEntity');
+            MockPreviousState = jasmine.createSpy('MockPreviousState');
             MockDataType = jasmine.createSpy('MockDataType');
             MockIntegration = jasmine.createSpy('MockIntegration');
             
@@ -18,7 +19,8 @@ describe('Controller Tests', function() {
             var locals = {
                 '$scope': $scope,
                 '$rootScope': $rootScope,
-                'entity': MockEntity ,
+                'entity': MockEntity,
+                'previousState': MockPreviousState,
                 'DataType': MockDataType,
                 'Integration': MockIntegration
             };

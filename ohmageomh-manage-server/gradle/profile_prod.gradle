@@ -1,15 +1,13 @@
-import org.apache.tools.ant.taskdefs.condition.Os
-apply plugin: 'spring-boot'
+apply plugin: 'org.springframework.boot'
 apply plugin: 'com.moowork.node'
 apply plugin: 'com.moowork.gulp'
-
 
 ext {
     logbackLoglevel = "INFO"
 }
 
 dependencies {
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-tomcat', version: spring_boot_version
+
 }
 
 def profiles = 'prod'
@@ -17,12 +15,12 @@ if (project.hasProperty('no-liquibase')) {
     profiles += ',no-liquibase'
 }
 
-if (project.hasProperty('no-cache')) {
-    profiles += ',no-cache'
+if (project.hasProperty('swagger')) {
+    profiles += ',swagger'
 }
 
 bootRun {
-    args = ["--spring.profiles.active=" + profiles]
+    args = []
 }
 
 task gulpBuildWithOpts(type: GulpTask) {
@@ -36,19 +34,26 @@ war {
 processResources {
     filesMatching('**/logback-spring.xml') {
         filter {
-            it.replace('@logback.loglevel@', logbackLoglevel)
+            it.replace('#logback.loglevel#', logbackLoglevel)
+        }
+    }
+    filesMatching('**/application.yml') {
+        filter {
+            it.replace('#project.version#', version)
+        }
+        filter {
+            it.replace('#spring.profiles.active#', profiles)
         }
     }
 }
 
-task setProdProperties(dependsOn: bootRun) << {
-    doFirst {
-        System.setProperty('spring.profiles.active', profiles)
-    }
+// Workaround for https://github.com/srs/gradle-node-plugin/issues/134 doesn't work with yarn
+if (!project.hasProperty('nodeInstall')) {
+    gulpBuildWithOpts.dependsOn yarn_install
+} else {
+    gulpBuildWithOpts.dependsOn npm_install
 }
-
-gulp_build.dependsOn 'npmInstall'
-gulp_build.dependsOn 'bower'
+gulpBuildWithOpts.dependsOn bower
 processResources.dependsOn gulpBuildWithOpts
 test.dependsOn gulp_test
 bootRun.dependsOn gulp_test

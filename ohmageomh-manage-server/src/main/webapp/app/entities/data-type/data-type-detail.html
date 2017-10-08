@@ -2,47 +2,42 @@
 <div>
     <h2><span>Data Type</span> {{vm.dataType.id}}</h2>
     <hr>
-    <dl class="dl-horizontal">
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="dl-horizontal jh-entity-details">
         <dt><span>Name</span></dt>
         <dd>
             <span>{{vm.dataType.name}}</span>
         </dd>
-        <hr>
         <dt><span>Description</span></dt>
         <dd>
             <span>{{vm.dataType.description}}</span>
         </dd>
-        <hr>
         <dt><span>Schema Namespace</span></dt>
         <dd>
             <span>{{vm.dataType.schemaNamespace}}</span>
         </dd>
-        <hr>
         <dt><span>Schema Name</span></dt>
         <dd>
             <span>{{vm.dataType.schemaName}}</span>
         </dd>
-        <hr>
         <dt><span>Schema Version</span></dt>
         <dd>
             <span>{{vm.dataType.schemaVersion}}</span>
         </dd>
-        <hr>
-        <dt><span>Date Field</span></dt>
-        <dd>
-            <span>{{vm.dataType.dateField}}</span>
-        </dd>
-        <hr>
         <dt><span>Csv Mapper</span></dt>
         <dd>
             <span>{{vm.dataType.csvMapper}}</span>
         </dd>
-        <hr>
     </dl>
 
     <button type="submit"
-            onclick="window.history.back()"
+            ui-sref="{{ vm.previousState }}"
             class="btn btn-info">
         <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span> Back</span>
+    </button>
+
+    <button type="button" ui-sref="data-type-detail.edit({id:vm.dataType.id})" class="btn btn-primary">
+        <span class="glyphicon glyphicon-pencil"></span>
+        <span class="hidden-sm-down"> Edit</span>
     </button>
 </div>

@@ -2,7 +2,7 @@
 <databaseChangeLog
     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
     <!--
         Added the constraints for entity Organization.
     -->
@@ -10,23 +10,23 @@
         
         <addForeignKeyConstraint baseColumnNames="organizations_id"
                                  baseTableName="organization_study"
-                                 constraintName="fk_organization_study_study_id"
+                                 constraintName="fk_organization_study_organizations_id"
                                  referencedColumnNames="id"
                                  referencedTableName="organization"/>
         <addForeignKeyConstraint baseColumnNames="studies_id"
                                  baseTableName="organization_study"
-                                 constraintName="fk_organization_study_organization_id"
+                                 constraintName="fk_organization_study_studies_id"
                                  referencedColumnNames="id"
                                  referencedTableName="study"/>
         
         <addForeignKeyConstraint baseColumnNames="organizations_id"
                                  baseTableName="organization_owner"
-                                 constraintName="fk_organization_owner_user_id"
+                                 constraintName="fk_organization_owner_organizations_id"
                                  referencedColumnNames="id"
                                  referencedTableName="organization"/>
         <addForeignKeyConstraint baseColumnNames="owners_id"
                                  baseTableName="organization_owner"
-                                 constraintName="fk_organization_owner_organization_id"
+                                 constraintName="fk_organization_owner_owners_id"
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"/>
         

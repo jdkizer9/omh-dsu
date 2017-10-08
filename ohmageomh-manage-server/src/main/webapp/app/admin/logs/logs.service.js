@@ -8,7 +8,7 @@
     LogsService.$inject = ['$resource'];
 
     function LogsService ($resource) {
-        var service = $resource('api/logs', {}, {
+        var service = $resource('management/logs', {}, {
             'findAll': { method: 'GET', isArray: true},
             'changeLevel': { method: 'PUT'}
         });

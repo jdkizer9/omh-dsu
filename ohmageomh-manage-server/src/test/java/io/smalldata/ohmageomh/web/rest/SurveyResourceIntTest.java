@@ -1,98 +1,114 @@
 package io.smalldata.ohmageomh.web.rest;
 
 import io.smalldata.ohmageomh.OhmageApp;
+
 import io.smalldata.ohmageomh.domain.Survey;
 import io.smalldata.ohmageomh.repository.SurveyRepository;
 import io.smalldata.ohmageomh.service.SurveyService;
 import io.smalldata.ohmageomh.repository.search.SurveySearchRepository;
+import io.smalldata.ohmageomh.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.hamcrest.Matchers.hasItem;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 
 /**
  * Test class for the SurveyResource REST controller.
  *
  * @see SurveyResource
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = OhmageApp.class)
-@WebAppConfiguration
-@IntegrationTest
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = OhmageApp.class)
 public class SurveyResourceIntTest {
 
-    private static final String DEFAULT_NAME = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private static final String UPDATED_NAME = "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB";
-    private static final String DEFAULT_VERSION = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private static final String UPDATED_VERSION = "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB";
-    private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private static final String UPDATED_DESCRIPTION = "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB";
+    private static final String DEFAULT_NAME = "AAAAAAAAAA";
+    private static final String UPDATED_NAME = "BBBBBBBBBB";
+
+    private static final String DEFAULT_VERSION = "AAAAAAAAAA";
+    private static final String UPDATED_VERSION = "BBBBBBBBBB";
+
+    private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
+    private static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";
 
     private static final Boolean DEFAULT_IS_PUBLIC = false;
     private static final Boolean UPDATED_IS_PUBLIC = true;
-    private static final String DEFAULT_DEFINITION = "AAAAA";
-    private static final String UPDATED_DEFINITION = "BBBBB";
 
-    @Inject
+    private static final String DEFAULT_DEFINITION = "AAAAAAAAAA";
+    private static final String UPDATED_DEFINITION = "BBBBBBBBBB";
+
+    @Autowired
     private SurveyRepository surveyRepository;
 
-    @Inject
+    @Autowired
     private SurveyService surveyService;
 
-    @Inject
+    @Autowired
     private SurveySearchRepository surveySearchRepository;
 
-    @Inject
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
-    @Inject
+    @Autowired
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
+
+    @Autowired
+    private ExceptionTranslator exceptionTranslator;
+
+    @Autowired
+    private EntityManager em;
 
     private MockMvc restSurveyMockMvc;
 
     private Survey survey;
 
-    @PostConstruct
+    @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        SurveyResource surveyResource = new SurveyResource();
-        ReflectionTestUtils.setField(surveyResource, "surveyService", surveyService);
+        final SurveyResource surveyResource = new SurveyResource(surveyService);
         this.restSurveyMockMvc = MockMvcBuilders.standaloneSetup(surveyResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
+            .setControllerAdvice(exceptionTranslator)
             .setMessageConverters(jacksonMessageConverter).build();
     }
 
-    @Before
-    public void initTest() {
-        surveySearchRepository.deleteAll();
-        survey = new Survey();
+    /**
+     * Create an entity for this test.
+     *
+     * This is a static method, as tests for other entities might also need it,
+     * if they test an entity which requires the current entity.
+     */
+    public static Survey createEntity(EntityManager em) {
+        Survey survey = new Survey();
         survey.setName(DEFAULT_NAME);
         survey.setVersion(DEFAULT_VERSION);
         survey.setDescription(DEFAULT_DESCRIPTION);
         survey.setIsPublic(DEFAULT_IS_PUBLIC);
         survey.setDefinition(DEFAULT_DEFINITION);
+        return survey;
+    }
+
+    @Before
+    public void initTest() {
+        surveySearchRepository.deleteAll();
+        survey = createEntity(em);
     }
 
     @Test
@@ -101,25 +117,43 @@ public class SurveyResourceIntTest {
         int databaseSizeBeforeCreate = surveyRepository.findAll().size();
 
         // Create the Survey
-
         restSurveyMockMvc.perform(post("/api/surveys")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(survey)))
-                .andExpect(status().isCreated());
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(survey)))
+            .andExpect(status().isCreated());
 
         // Validate the Survey in the database
-        List<Survey> surveys = surveyRepository.findAll();
-        assertThat(surveys).hasSize(databaseSizeBeforeCreate + 1);
-        Survey testSurvey = surveys.get(surveys.size() - 1);
+        List<Survey> surveyList = surveyRepository.findAll();
+        assertThat(surveyList).hasSize(databaseSizeBeforeCreate + 1);
+        Survey testSurvey = surveyList.get(surveyList.size() - 1);
         assertThat(testSurvey.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testSurvey.getVersion()).isEqualTo(DEFAULT_VERSION);
         assertThat(testSurvey.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
         assertThat(testSurvey.isIsPublic()).isEqualTo(DEFAULT_IS_PUBLIC);
         assertThat(testSurvey.getDefinition()).isEqualTo(DEFAULT_DEFINITION);
 
-        // Validate the Survey in ElasticSearch
+        // Validate the Survey in Elasticsearch
         Survey surveyEs = surveySearchRepository.findOne(testSurvey.getId());
         assertThat(surveyEs).isEqualToComparingFieldByField(testSurvey);
+    }
+
+    @Test
+    @Transactional
+    public void createSurveyWithExistingId() throws Exception {
+        int databaseSizeBeforeCreate = surveyRepository.findAll().size();
+
+        // Create the Survey with an existing ID
+        survey.setId(1L);
+
+        // An entity with an existing ID cannot be created, so this API call must fail
+        restSurveyMockMvc.perform(post("/api/surveys")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(survey)))
+            .andExpect(status().isBadRequest());
+
+        // Validate the Survey in the database
+        List<Survey> surveyList = surveyRepository.findAll();
+        assertThat(surveyList).hasSize(databaseSizeBeforeCreate);
     }
 
     @Test
@@ -132,12 +166,12 @@ public class SurveyResourceIntTest {
         // Create the Survey, which fails.
 
         restSurveyMockMvc.perform(post("/api/surveys")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(survey)))
-                .andExpect(status().isBadRequest());
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(survey)))
+            .andExpect(status().isBadRequest());
 
-        List<Survey> surveys = surveyRepository.findAll();
-        assertThat(surveys).hasSize(databaseSizeBeforeTest);
+        List<Survey> surveyList = surveyRepository.findAll();
+        assertThat(surveyList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
@@ -150,12 +184,12 @@ public class SurveyResourceIntTest {
         // Create the Survey, which fails.
 
         restSurveyMockMvc.perform(post("/api/surveys")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(survey)))
-                .andExpect(status().isBadRequest());
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(survey)))
+            .andExpect(status().isBadRequest());
 
-        List<Survey> surveys = surveyRepository.findAll();
-        assertThat(surveys).hasSize(databaseSizeBeforeTest);
+        List<Survey> surveyList = surveyRepository.findAll();
+        assertThat(surveyList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
@@ -168,12 +202,12 @@ public class SurveyResourceIntTest {
         // Create the Survey, which fails.
 
         restSurveyMockMvc.perform(post("/api/surveys")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(survey)))
-                .andExpect(status().isBadRequest());
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(survey)))
+            .andExpect(status().isBadRequest());
 
-        List<Survey> surveys = surveyRepository.findAll();
-        assertThat(surveys).hasSize(databaseSizeBeforeTest);
+        List<Survey> surveyList = surveyRepository.findAll();
+        assertThat(surveyList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
@@ -186,12 +220,12 @@ public class SurveyResourceIntTest {
         // Create the Survey, which fails.
 
         restSurveyMockMvc.perform(post("/api/surveys")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(survey)))
-                .andExpect(status().isBadRequest());
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(survey)))
+            .andExpect(status().isBadRequest());
 
-        List<Survey> surveys = surveyRepository.findAll();
-        assertThat(surveys).hasSize(databaseSizeBeforeTest);
+        List<Survey> surveyList = surveyRepository.findAll();
+        assertThat(surveyList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
@@ -200,16 +234,16 @@ public class SurveyResourceIntTest {
         // Initialize the database
         surveyRepository.saveAndFlush(survey);
 
-        // Get all the surveys
+        // Get all the surveyList
         restSurveyMockMvc.perform(get("/api/surveys?sort=id,desc"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.[*].id").value(hasItem(survey.getId().intValue())))
-                .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
-                .andExpect(jsonPath("$.[*].version").value(hasItem(DEFAULT_VERSION.toString())))
-                .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
-                .andExpect(jsonPath("$.[*].isPublic").value(hasItem(DEFAULT_IS_PUBLIC.booleanValue())))
-                .andExpect(jsonPath("$.[*].definition").value(hasItem(DEFAULT_DEFINITION.toString())));
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(survey.getId().intValue())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
+            .andExpect(jsonPath("$.[*].version").value(hasItem(DEFAULT_VERSION.toString())))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
+            .andExpect(jsonPath("$.[*].isPublic").value(hasItem(DEFAULT_IS_PUBLIC.booleanValue())))
+            .andExpect(jsonPath("$.[*].definition").value(hasItem(DEFAULT_DEFINITION.toString())));
     }
 
     @Test
@@ -221,7 +255,7 @@ public class SurveyResourceIntTest {
         // Get the survey
         restSurveyMockMvc.perform(get("/api/surveys/{id}", survey.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(survey.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()))
             .andExpect(jsonPath("$.version").value(DEFAULT_VERSION.toString()))
@@ -235,7 +269,7 @@ public class SurveyResourceIntTest {
     public void getNonExistingSurvey() throws Exception {
         // Get the survey
         restSurveyMockMvc.perform(get("/api/surveys/{id}", Long.MAX_VALUE))
-                .andExpect(status().isNotFound());
+            .andExpect(status().isNotFound());
     }
 
     @Test
@@ -247,8 +281,7 @@ public class SurveyResourceIntTest {
         int databaseSizeBeforeUpdate = surveyRepository.findAll().size();
 
         // Update the survey
-        Survey updatedSurvey = new Survey();
-        updatedSurvey.setId(survey.getId());
+        Survey updatedSurvey = surveyRepository.findOne(survey.getId());
         updatedSurvey.setName(UPDATED_NAME);
         updatedSurvey.setVersion(UPDATED_VERSION);
         updatedSurvey.setDescription(UPDATED_DESCRIPTION);
@@ -256,23 +289,41 @@ public class SurveyResourceIntTest {
         updatedSurvey.setDefinition(UPDATED_DEFINITION);
 
         restSurveyMockMvc.perform(put("/api/surveys")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(updatedSurvey)))
-                .andExpect(status().isOk());
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(updatedSurvey)))
+            .andExpect(status().isOk());
 
         // Validate the Survey in the database
-        List<Survey> surveys = surveyRepository.findAll();
-        assertThat(surveys).hasSize(databaseSizeBeforeUpdate);
-        Survey testSurvey = surveys.get(surveys.size() - 1);
+        List<Survey> surveyList = surveyRepository.findAll();
+        assertThat(surveyList).hasSize(databaseSizeBeforeUpdate);
+        Survey testSurvey = surveyList.get(surveyList.size() - 1);
         assertThat(testSurvey.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testSurvey.getVersion()).isEqualTo(UPDATED_VERSION);
         assertThat(testSurvey.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
         assertThat(testSurvey.isIsPublic()).isEqualTo(UPDATED_IS_PUBLIC);
         assertThat(testSurvey.getDefinition()).isEqualTo(UPDATED_DEFINITION);
 
-        // Validate the Survey in ElasticSearch
+        // Validate the Survey in Elasticsearch
         Survey surveyEs = surveySearchRepository.findOne(testSurvey.getId());
         assertThat(surveyEs).isEqualToComparingFieldByField(testSurvey);
+    }
+
+    @Test
+    @Transactional
+    public void updateNonExistingSurvey() throws Exception {
+        int databaseSizeBeforeUpdate = surveyRepository.findAll().size();
+
+        // Create the Survey
+
+        // If the entity doesn't have an ID, it will be created instead of just being updated
+        restSurveyMockMvc.perform(put("/api/surveys")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(survey)))
+            .andExpect(status().isCreated());
+
+        // Validate the Survey in the database
+        List<Survey> surveyList = surveyRepository.findAll();
+        assertThat(surveyList).hasSize(databaseSizeBeforeUpdate + 1);
     }
 
     @Test
@@ -285,16 +336,16 @@ public class SurveyResourceIntTest {
 
         // Get the survey
         restSurveyMockMvc.perform(delete("/api/surveys/{id}", survey.getId())
-                .accept(TestUtil.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk());
+            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(status().isOk());
 
-        // Validate ElasticSearch is empty
+        // Validate Elasticsearch is empty
         boolean surveyExistsInEs = surveySearchRepository.exists(survey.getId());
         assertThat(surveyExistsInEs).isFalse();
 
         // Validate the database is empty
-        List<Survey> surveys = surveyRepository.findAll();
-        assertThat(surveys).hasSize(databaseSizeBeforeDelete - 1);
+        List<Survey> surveyList = surveyRepository.findAll();
+        assertThat(surveyList).hasSize(databaseSizeBeforeDelete - 1);
     }
 
     @Test
@@ -306,12 +357,27 @@ public class SurveyResourceIntTest {
         // Search the survey
         restSurveyMockMvc.perform(get("/api/_search/surveys?query=id:" + survey.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(survey.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
             .andExpect(jsonPath("$.[*].version").value(hasItem(DEFAULT_VERSION.toString())))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
             .andExpect(jsonPath("$.[*].isPublic").value(hasItem(DEFAULT_IS_PUBLIC.booleanValue())))
             .andExpect(jsonPath("$.[*].definition").value(hasItem(DEFAULT_DEFINITION.toString())));
+    }
+
+    @Test
+    @Transactional
+    public void equalsVerifier() throws Exception {
+        TestUtil.equalsVerifier(Survey.class);
+        Survey survey1 = new Survey();
+        survey1.setId(1L);
+        Survey survey2 = new Survey();
+        survey2.setId(survey1.getId());
+        assertThat(survey1).isEqualTo(survey2);
+        survey2.setId(2L);
+        assertThat(survey1).isNotEqualTo(survey2);
+        survey1.setId(null);
+        assertThat(survey1).isNotEqualTo(survey2);
     }
 }

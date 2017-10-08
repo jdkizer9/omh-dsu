@@ -1,11 +1,8 @@
 package io.smalldata.ohmageomh.service;
 
 import io.smalldata.ohmageomh.domain.Study;
-import io.smalldata.ohmageomh.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import java.util.List;
 
 /**
  * Service Interface for managing Study.
@@ -29,14 +26,6 @@ public interface StudyService {
     Page<Study> findAll(Pageable pageable);
 
     /**
-     *  Get all the studies a user is a manager for.
-     *
-     *  @param pageable the pagination information
-     *  @return the list of entities
-     */
-    Page<Study> findAllByManager(User user, Pageable pageable);
-
-    /**
      *  Get the "id" study.
      *
      *  @param id the id of the entity
@@ -55,6 +44,8 @@ public interface StudyService {
      * Search for the study corresponding to the query.
      *
      *  @param query the query of the search
+     *  
+     *  @param pageable the pagination information
      *  @return the list of entities
      */
     Page<Study> search(String query, Pageable pageable);

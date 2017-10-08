@@ -9,15 +9,20 @@
 
     function DataTypeDeleteController($uibModalInstance, entity, DataType) {
         var vm = this;
+
         vm.dataType = entity;
-        vm.clear = function() {
+        vm.clear = clear;
+        vm.confirmDelete = confirmDelete;
+
+        function clear () {
             $uibModalInstance.dismiss('cancel');
-        };
-        vm.confirmDelete = function (id) {
+        }
+
+        function confirmDelete (id) {
             DataType.delete({id: id},
                 function () {
                     $uibModalInstance.close(true);
                 });
-        };
+        }
     }
 })();

@@ -1,12 +1,17 @@
 package io.smalldata.ohmageomh.web.rest.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
-
 /**
  * Utility class for HTTP headers creation.
- *
  */
-public class HeaderUtil {
+public final class HeaderUtil {
+
+    private static final Logger log = LoggerFactory.getLogger(HeaderUtil.class);
+
+    private HeaderUtil() {
+    }
 
     public static HttpHeaders createAlert(String message, String param) {
         HttpHeaders headers = new HttpHeaders();
@@ -28,6 +33,7 @@ public class HeaderUtil {
     }
 
     public static HttpHeaders createFailureAlert(String entityName, String errorKey, String defaultMessage) {
+        log.error("Entity processing failed, {}", defaultMessage);
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-ohmageApp-error", defaultMessage);
         headers.add("X-ohmageApp-params", entityName);

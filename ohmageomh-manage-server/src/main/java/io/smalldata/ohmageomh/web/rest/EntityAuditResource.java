@@ -20,21 +20,25 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.access.annotation.Secured;
 import com.codahale.metrics.annotation.Timed;
 
-import javax.inject.Inject;
 import java.net.URISyntaxException;
 import java.util.List;
+import javax.transaction.Transactional;
 
 /**
  * REST controller for getting the audit events for entity
  */
 @RestController
 @RequestMapping("/api")
+@Transactional
 public class EntityAuditResource {
 
     private final Logger log = LoggerFactory.getLogger(EntityAuditResource.class);
 
-    @Inject
-    private EntityAuditEventRepository entityAuditEventRepository;
+    private final EntityAuditEventRepository entityAuditEventRepository;
+
+    public EntityAuditResource(EntityAuditEventRepository entityAuditEventRepository) {
+        this.entityAuditEventRepository = entityAuditEventRepository;
+    }
 
     /**
      * fetches all the audited entity types

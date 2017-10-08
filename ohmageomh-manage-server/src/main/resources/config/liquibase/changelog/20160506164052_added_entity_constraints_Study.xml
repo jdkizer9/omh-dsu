@@ -2,7 +2,7 @@
 <databaseChangeLog
     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
     <!--
         Added the constraints for entity Study.
     -->
@@ -10,34 +10,34 @@
         
         <addForeignKeyConstraint baseColumnNames="studies_id"
                                  baseTableName="study_manager"
-                                 constraintName="fk_study_manager_user_id"
+                                 constraintName="fk_study_manager_studies_id"
                                  referencedColumnNames="id"
                                  referencedTableName="study"/>
         <addForeignKeyConstraint baseColumnNames="managers_id"
                                  baseTableName="study_manager"
-                                 constraintName="fk_study_manager_study_id"
+                                 constraintName="fk_study_manager_managers_id"
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"/>
         
         <addForeignKeyConstraint baseColumnNames="studies_id"
                                  baseTableName="study_survey"
-                                 constraintName="fk_study_survey_survey_id"
+                                 constraintName="fk_study_survey_studies_id"
                                  referencedColumnNames="id"
                                  referencedTableName="study"/>
         <addForeignKeyConstraint baseColumnNames="surveys_id"
                                  baseTableName="study_survey"
-                                 constraintName="fk_study_survey_study_id"
+                                 constraintName="fk_study_survey_surveys_id"
                                  referencedColumnNames="id"
                                  referencedTableName="survey"/>
         
         <addForeignKeyConstraint baseColumnNames="studies_id"
                                  baseTableName="study_integration"
-                                 constraintName="fk_study_integration_integration_id"
+                                 constraintName="fk_study_integration_studies_id"
                                  referencedColumnNames="id"
                                  referencedTableName="study"/>
         <addForeignKeyConstraint baseColumnNames="integrations_id"
                                  baseTableName="study_integration"
-                                 constraintName="fk_study_integration_study_id"
+                                 constraintName="fk_study_integration_integrations_id"
                                  referencedColumnNames="id"
                                  referencedTableName="integration"/>
         

@@ -9,15 +9,20 @@
 
     function SurveyDeleteController($uibModalInstance, entity, Survey) {
         var vm = this;
+
         vm.survey = entity;
-        vm.clear = function() {
+        vm.clear = clear;
+        vm.confirmDelete = confirmDelete;
+
+        function clear () {
             $uibModalInstance.dismiss('cancel');
-        };
-        vm.confirmDelete = function (id) {
+        }
+
+        function confirmDelete (id) {
             Survey.delete({id: id},
                 function () {
                     $uibModalInstance.close(true);
                 });
-        };
+        }
     }
 })();

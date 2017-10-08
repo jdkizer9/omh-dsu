@@ -13,7 +13,7 @@
             parent: 'entity',
             url: '/survey?page&sort&search',
             data: {
-                authorities: ['ROLE_ADMIN'],
+                authorities: ['ROLE_USER'],
                 pageTitle: 'Surveys'
             },
             views: {
@@ -47,10 +47,10 @@
             }
         })
         .state('survey-detail', {
-            parent: 'entity',
+            parent: 'survey',
             url: '/survey/{id}',
             data: {
-                authorities: ['ROLE_ADMIN'],
+                authorities: ['ROLE_USER'],
                 pageTitle: 'Survey'
             },
             views: {
@@ -62,15 +62,48 @@
             },
             resolve: {
                 entity: ['$stateParams', 'Survey', function($stateParams, Survey) {
-                    return Survey.get({id : $stateParams.id});
+                    return Survey.get({id : $stateParams.id}).$promise;
+                }],
+                previousState: ["$state", function ($state) {
+                    var currentStateData = {
+                        name: $state.current.name || 'survey',
+                        params: $state.params,
+                        url: $state.href($state.current.name, $state.params)
+                    };
+                    return currentStateData;
                 }]
             }
+        })
+        .state('survey-detail.edit', {
+            parent: 'survey-detail',
+            url: '/detail/edit',
+            data: {
+                authorities: ['ROLE_USER']
+            },
+            onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
+                $uibModal.open({
+                    templateUrl: 'app/entities/survey/survey-dialog.html',
+                    controller: 'SurveyDialogController',
+                    controllerAs: 'vm',
+                    backdrop: 'static',
+                    size: 'lg',
+                    resolve: {
+                        entity: ['Survey', function(Survey) {
+                            return Survey.get({id : $stateParams.id}).$promise;
+                        }]
+                    }
+                }).result.then(function() {
+                    $state.go('^', {}, { reload: false });
+                }, function() {
+                    $state.go('^');
+                });
+            }]
         })
         .state('survey.new', {
             parent: 'survey',
             url: '/new',
             data: {
-                authorities: ['ROLE_ADMIN']
+                authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
@@ -92,7 +125,7 @@
                         }
                     }
                 }).result.then(function() {
-                    $state.go('survey', null, { reload: true });
+                    $state.go('survey', null, { reload: 'survey' });
                 }, function() {
                     $state.go('survey');
                 });
@@ -102,7 +135,7 @@
             parent: 'survey',
             url: '/{id}/edit',
             data: {
-                authorities: ['ROLE_ADMIN']
+                authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
@@ -113,11 +146,11 @@
                     size: 'lg',
                     resolve: {
                         entity: ['Survey', function(Survey) {
-                            return Survey.get({id : $stateParams.id});
+                            return Survey.get({id : $stateParams.id}).$promise;
                         }]
                     }
                 }).result.then(function() {
-                    $state.go('survey', null, { reload: true });
+                    $state.go('survey', null, { reload: 'survey' });
                 }, function() {
                     $state.go('^');
                 });
@@ -127,7 +160,7 @@
             parent: 'survey',
             url: '/{id}/delete',
             data: {
-                authorities: ['ROLE_ADMIN']
+                authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
@@ -137,11 +170,11 @@
                     size: 'md',
                     resolve: {
                         entity: ['Survey', function(Survey) {
-                            return Survey.get({id : $stateParams.id});
+                            return Survey.get({id : $stateParams.id}).$promise;
                         }]
                     }
                 }).result.then(function() {
-                    $state.go('survey', null, { reload: true });
+                    $state.go('survey', null, { reload: 'survey' });
                 }, function() {
                     $state.go('^');
                 });

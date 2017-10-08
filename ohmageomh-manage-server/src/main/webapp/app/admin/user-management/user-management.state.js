@@ -11,10 +11,10 @@
         $stateProvider
         .state('user-management', {
             parent: 'admin',
-            url: '/user-management',
+            url: '/user-management?page&sort',
             data: {
                 authorities: ['ROLE_ADMIN'],
-                pageTitle: 'Ohmage'
+                pageTitle: 'Users'
             },
             views: {
                 'content@': {
@@ -22,25 +22,27 @@
                     controller: 'UserManagementController',
                     controllerAs: 'vm'
                 }
-            }
-        })
-        .state('user-management-detail', {
-            parent: 'admin',
-            url: '/user/:login',
-            data: {
-                authorities: ['ROLE_ADMIN'],
-                pageTitle: 'Ohmage'
-            },
-            views: {
-                'content@': {
-                    templateUrl: 'app/admin/user-management/user-management-detail.html',
-                    controller: 'UserManagementDetailController',
-                    controllerAs: 'vm'
+            },            params: {
+                page: {
+                    value: '1',
+                    squash: true
+                },
+                sort: {
+                    value: 'id,asc',
+                    squash: true
                 }
-            }
-        })
+            },
+            resolve: {
+                pagingParams: ['$stateParams', 'PaginationUtil', function ($stateParams, PaginationUtil) {
+                    return {
+                        page: PaginationUtil.parsePage($stateParams.page),
+                        sort: $stateParams.sort,
+                        predicate: PaginationUtil.parsePredicate($stateParams.sort),
+                        ascending: PaginationUtil.parseAscending($stateParams.sort)
+                    };
+                }]
+            }        })
         .state('user-management.new', {
-            parent: 'user-management',
             url: '/new',
             data: {
                 authorities: ['ROLE_ADMIN']
@@ -70,7 +72,6 @@
             }]
         })
         .state('user-management.edit', {
-            parent: 'user-management',
             url: '/{login}/edit',
             data: {
                 authorities: ['ROLE_ADMIN']
@@ -84,7 +85,7 @@
                     size: 'lg',
                     resolve: {
                         entity: ['User', function(User) {
-                            return User.get({login : $stateParams.login});
+                            return User.get({login : $stateParams.login}).$promise;
                         }]
                     }
                 }).result.then(function() {
@@ -94,8 +95,22 @@
                 });
             }]
         })
-        .state('user-management.delete', {
+        .state('user-management-detail', {
             parent: 'user-management',
+            url: '/{login}',
+            data: {
+                authorities: ['ROLE_ADMIN'],
+                pageTitle: 'Ohmage'
+            },
+            views: {
+                'content@': {
+                    templateUrl: 'app/admin/user-management/user-management-detail.html',
+                    controller: 'UserManagementDetailController',
+                    controllerAs: 'vm'
+                }
+            }
+        })
+        .state('user-management.delete', {
             url: '/{login}/delete',
             data: {
                 authorities: ['ROLE_ADMIN']
@@ -108,7 +123,7 @@
                     size: 'md',
                     resolve: {
                         entity: ['User', function(User) {
-                            return User.get({login : $stateParams.login});
+                            return User.get({login : $stateParams.login}).$promise;
                         }]
                     }
                 }).result.then(function() {

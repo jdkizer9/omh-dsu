@@ -13,7 +13,7 @@
             parent: 'entity',
             url: '/study?page&sort&search',
             data: {
-                authorities: ['ROLE_ADMIN'],
+                authorities: ['ROLE_USER'],
                 pageTitle: 'Studies'
             },
             views: {
@@ -47,10 +47,10 @@
             }
         })
         .state('study-detail', {
-            parent: 'entity',
+            parent: 'study',
             url: '/study/{id}',
             data: {
-                authorities: ['ROLE_ADMIN'],
+                authorities: ['ROLE_USER'],
                 pageTitle: 'Study'
             },
             views: {
@@ -62,15 +62,48 @@
             },
             resolve: {
                 entity: ['$stateParams', 'Study', function($stateParams, Study) {
-                    return Study.get({id : $stateParams.id});
+                    return Study.get({id : $stateParams.id}).$promise;
+                }],
+                previousState: ["$state", function ($state) {
+                    var currentStateData = {
+                        name: $state.current.name || 'study',
+                        params: $state.params,
+                        url: $state.href($state.current.name, $state.params)
+                    };
+                    return currentStateData;
                 }]
             }
+        })
+        .state('study-detail.edit', {
+            parent: 'study-detail',
+            url: '/detail/edit',
+            data: {
+                authorities: ['ROLE_USER']
+            },
+            onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
+                $uibModal.open({
+                    templateUrl: 'app/entities/study/study-dialog.html',
+                    controller: 'StudyDialogController',
+                    controllerAs: 'vm',
+                    backdrop: 'static',
+                    size: 'lg',
+                    resolve: {
+                        entity: ['Study', function(Study) {
+                            return Study.get({id : $stateParams.id}).$promise;
+                        }]
+                    }
+                }).result.then(function() {
+                    $state.go('^', {}, { reload: false });
+                }, function() {
+                    $state.go('^');
+                });
+            }]
         })
         .state('study.new', {
             parent: 'study',
             url: '/new',
             data: {
-                authorities: ['ROLE_ADMIN']
+                authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
@@ -91,7 +124,7 @@
                         }
                     }
                 }).result.then(function() {
-                    $state.go('study', null, { reload: true });
+                    $state.go('study', null, { reload: 'study' });
                 }, function() {
                     $state.go('study');
                 });
@@ -101,7 +134,7 @@
             parent: 'study',
             url: '/{id}/edit',
             data: {
-                authorities: ['ROLE_ADMIN']
+                authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
@@ -112,11 +145,11 @@
                     size: 'lg',
                     resolve: {
                         entity: ['Study', function(Study) {
-                            return Study.get({id : $stateParams.id});
+                            return Study.get({id : $stateParams.id}).$promise;
                         }]
                     }
                 }).result.then(function() {
-                    $state.go('study', null, { reload: true });
+                    $state.go('study', null, { reload: 'study' });
                 }, function() {
                     $state.go('^');
                 });
@@ -126,7 +159,7 @@
             parent: 'study',
             url: '/{id}/delete',
             data: {
-                authorities: ['ROLE_ADMIN']
+                authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
@@ -136,11 +169,11 @@
                     size: 'md',
                     resolve: {
                         entity: ['Study', function(Study) {
-                            return Study.get({id : $stateParams.id});
+                            return Study.get({id : $stateParams.id}).$promise;
                         }]
                     }
                 }).result.then(function() {
-                    $state.go('study', null, { reload: true });
+                    $state.go('study', null, { reload: 'study' });
                 }, function() {
                     $state.go('^');
                 });

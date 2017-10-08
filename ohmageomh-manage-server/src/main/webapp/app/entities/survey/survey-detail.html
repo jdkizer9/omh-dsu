@@ -2,37 +2,38 @@
 <div>
     <h2><span>Survey</span> {{vm.survey.id}}</h2>
     <hr>
-    <dl class="dl-horizontal">
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="dl-horizontal jh-entity-details">
         <dt><span>Name</span></dt>
         <dd>
             <span>{{vm.survey.name}}</span>
         </dd>
-        <hr>
         <dt><span>Version</span></dt>
         <dd>
             <span>{{vm.survey.version}}</span>
         </dd>
-        <hr>
         <dt><span>Description</span></dt>
         <dd>
             <span>{{vm.survey.description}}</span>
         </dd>
-        <hr>
         <dt><span>Is Public</span></dt>
         <dd>
             <span>{{vm.survey.isPublic}}</span>
         </dd>
-        <hr>
         <dt><span>Definition</span></dt>
         <dd>
             <span>{{vm.survey.definition}}</span>
         </dd>
-        <hr>
     </dl>
 
     <button type="submit"
-            onclick="window.history.back()"
+            ui-sref="{{ vm.previousState }}"
             class="btn btn-info">
         <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span> Back</span>
+    </button>
+
+    <button type="button" ui-sref="survey-detail.edit({id:vm.survey.id})" class="btn btn-primary">
+        <span class="glyphicon glyphicon-pencil"></span>
+        <span class="hidden-sm-down"> Edit</span>
     </button>
 </div>

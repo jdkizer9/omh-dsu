@@ -13,7 +13,7 @@
             parent: 'entity',
             url: '/participant?page&sort&search',
             data: {
-                authorities: ['ROLE_ADMIN'],
+                authorities: ['ROLE_USER'],
                 pageTitle: 'Participants'
             },
             views: {
@@ -47,10 +47,10 @@
             }
         })
         .state('participant-detail', {
-            parent: 'entity',
+            parent: 'participant',
             url: '/participant/{id}',
             data: {
-                authorities: ['ROLE_ADMIN'],
+                authorities: ['ROLE_USER'],
                 pageTitle: 'Participant'
             },
             views: {
@@ -62,15 +62,48 @@
             },
             resolve: {
                 entity: ['$stateParams', 'Participant', function($stateParams, Participant) {
-                    return Participant.get({id : $stateParams.id});
+                    return Participant.get({id : $stateParams.id}).$promise;
+                }],
+                previousState: ["$state", function ($state) {
+                    var currentStateData = {
+                        name: $state.current.name || 'participant',
+                        params: $state.params,
+                        url: $state.href($state.current.name, $state.params)
+                    };
+                    return currentStateData;
                 }]
             }
+        })
+        .state('participant-detail.edit', {
+            parent: 'participant-detail',
+            url: '/detail/edit',
+            data: {
+                authorities: ['ROLE_USER']
+            },
+            onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
+                $uibModal.open({
+                    templateUrl: 'app/entities/participant/participant-dialog.html',
+                    controller: 'ParticipantDialogController',
+                    controllerAs: 'vm',
+                    backdrop: 'static',
+                    size: 'lg',
+                    resolve: {
+                        entity: ['Participant', function(Participant) {
+                            return Participant.get({id : $stateParams.id}).$promise;
+                        }]
+                    }
+                }).result.then(function() {
+                    $state.go('^', {}, { reload: false });
+                }, function() {
+                    $state.go('^');
+                });
+            }]
         })
         .state('participant.new', {
             parent: 'participant',
             url: '/new',
             data: {
-                authorities: ['ROLE_ADMIN']
+                authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
@@ -89,7 +122,7 @@
                         }
                     }
                 }).result.then(function() {
-                    $state.go('participant', null, { reload: true });
+                    $state.go('participant', null, { reload: 'participant' });
                 }, function() {
                     $state.go('participant');
                 });
@@ -99,7 +132,7 @@
             parent: 'participant',
             url: '/{id}/edit',
             data: {
-                authorities: ['ROLE_ADMIN']
+                authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
@@ -110,11 +143,11 @@
                     size: 'lg',
                     resolve: {
                         entity: ['Participant', function(Participant) {
-                            return Participant.get({id : $stateParams.id});
+                            return Participant.get({id : $stateParams.id}).$promise;
                         }]
                     }
                 }).result.then(function() {
-                    $state.go('participant', null, { reload: true });
+                    $state.go('participant', null, { reload: 'participant' });
                 }, function() {
                     $state.go('^');
                 });
@@ -124,7 +157,7 @@
             parent: 'participant',
             url: '/{id}/delete',
             data: {
-                authorities: ['ROLE_ADMIN']
+                authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
@@ -134,11 +167,11 @@
                     size: 'md',
                     resolve: {
                         entity: ['Participant', function(Participant) {
-                            return Participant.get({id : $stateParams.id});
+                            return Participant.get({id : $stateParams.id}).$promise;
                         }]
                     }
                 }).result.then(function() {
-                    $state.go('participant', null, { reload: true });
+                    $state.go('participant', null, { reload: 'participant' });
                 }, function() {
                     $state.go('^');
                 });

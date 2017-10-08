@@ -20,7 +20,8 @@ public class Participant extends AbstractAuditingEntity implements Serializable 
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @SequenceGenerator(name = "sequenceGenerator")
     private Long id;
 
     @NotNull
@@ -29,15 +30,16 @@ public class Participant extends AbstractAuditingEntity implements Serializable 
     private String dsuId;
 
     @Size(max = 255)
-    @Column(name = "label", length = 255)
+    @Column(name = "jhi_label", length = 255)
     private String label;
 
     @ManyToMany
     @JoinTable(name = "participant_study",
-               joinColumns = @JoinColumn(name="participants_id", referencedColumnName="ID"),
-               inverseJoinColumns = @JoinColumn(name="studies_id", referencedColumnName="ID"))
+               joinColumns = @JoinColumn(name="participants_id", referencedColumnName="id"),
+               inverseJoinColumns = @JoinColumn(name="studies_id", referencedColumnName="id"))
     private Set<Study> studies = new HashSet<>();
 
+    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
         return id;
     }
@@ -69,6 +71,7 @@ public class Participant extends AbstractAuditingEntity implements Serializable 
     public void setStudies(Set<Study> studies) {
         this.studies = studies;
     }
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
     public boolean equals(Object o) {
@@ -79,23 +82,23 @@ public class Participant extends AbstractAuditingEntity implements Serializable 
             return false;
         }
         Participant participant = (Participant) o;
-        if(participant.id == null || id == null) {
+        if (participant.getId() == null || getId() == null) {
             return false;
         }
-        return Objects.equals(id, participant.id);
+        return Objects.equals(getId(), participant.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hashCode(getId());
     }
 
     @Override
     public String toString() {
         return "Participant{" +
-            "id=" + id +
-            ", dsuId='" + dsuId + "'" +
-            ", label='" + label + "'" +
-            '}';
+            "id=" + getId() +
+            ", dsuId='" + getDsuId() + "'" +
+            ", label='" + getLabel() + "'" +
+            "}";
     }
 }

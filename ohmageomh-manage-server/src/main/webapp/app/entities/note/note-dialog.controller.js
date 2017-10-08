@@ -9,7 +9,12 @@
 
     function NoteDialogController ($timeout, $scope, $stateParams, $uibModalInstance, entity, Note, Study, User, Participant) {
         var vm = this;
+
         vm.note = entity;
+        vm.clear = clear;
+        vm.datePickerOpenStatus = {};
+        vm.openCalendar = openCalendar;
+        vm.save = save;
         vm.studies = Study.query();
         vm.users = User.query();
         vm.participants = Participant.query();
@@ -18,34 +23,33 @@
             angular.element('.form-group:eq(1)>input').focus();
         });
 
-        var onSaveSuccess = function (result) {
-            $scope.$emit('ohmageApp:noteUpdate', result);
-            $uibModalInstance.close(result);
-            vm.isSaving = false;
-        };
+        function clear () {
+            $uibModalInstance.dismiss('cancel');
+        }
 
-        var onSaveError = function () {
-            vm.isSaving = false;
-        };
-
-        vm.save = function () {
+        function save () {
             vm.isSaving = true;
             if (vm.note.id !== null) {
                 Note.update(vm.note, onSaveSuccess, onSaveError);
             } else {
                 Note.save(vm.note, onSaveSuccess, onSaveError);
             }
-        };
+        }
 
-        vm.clear = function() {
-            $uibModalInstance.dismiss('cancel');
-        };
+        function onSaveSuccess (result) {
+            $scope.$emit('ohmageApp:noteUpdate', result);
+            $uibModalInstance.close(result);
+            vm.isSaving = false;
+        }
 
-        vm.datePickerOpenStatus = {};
+        function onSaveError () {
+            vm.isSaving = false;
+        }
+
         vm.datePickerOpenStatus.date = false;
 
-        vm.openCalendar = function(date) {
+        function openCalendar (date) {
             vm.datePickerOpenStatus[date] = true;
-        };
+        }
     }
 })();

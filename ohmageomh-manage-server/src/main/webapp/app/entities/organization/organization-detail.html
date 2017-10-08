@@ -2,31 +2,34 @@
 <div>
     <h2><span>Organization</span> {{vm.organization.id}}</h2>
     <hr>
-    <dl class="dl-horizontal">
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="dl-horizontal jh-entity-details">
         <dt><span>Name</span></dt>
         <dd>
             <span>{{vm.organization.name}}</span>
         </dd>
-        <hr>
         <dt><span>Study</span></dt>
         <dd>
             <span ng-repeat="study in vm.organization.studies">
-                <a ui-sref="study-detail({id: {{study.id}}})">{{study.id}}</a>{{$last ? '' : ', '}}
+                <a ui-sref="study-detail({id: study.id})">{{study.id}}</a>{{$last ? '' : ', '}}
             </span>
         </dd>
-        <hr>
         <dt><span>Owner</span></dt>
         <dd>
             <span ng-repeat="owner in vm.organization.owners">
                 {{owner.id}}{{$last ? '' : ', '}}
             </span>
         </dd>
-        <hr>
     </dl>
 
     <button type="submit"
-            onclick="window.history.back()"
+            ui-sref="{{ vm.previousState }}"
             class="btn btn-info">
         <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span> Back</span>
+    </button>
+
+    <button type="button" ui-sref="organization-detail.edit({id:vm.organization.id})" class="btn btn-primary">
+        <span class="glyphicon glyphicon-pencil"></span>
+        <span class="hidden-sm-down"> Edit</span>
     </button>
 </div>

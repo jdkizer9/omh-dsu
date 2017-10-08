@@ -9,15 +9,20 @@
 
     function IntegrationDeleteController($uibModalInstance, entity, Integration) {
         var vm = this;
+
         vm.integration = entity;
-        vm.clear = function() {
+        vm.clear = clear;
+        vm.confirmDelete = confirmDelete;
+
+        function clear () {
             $uibModalInstance.dismiss('cancel');
-        };
-        vm.confirmDelete = function (id) {
+        }
+
+        function confirmDelete (id) {
             Integration.delete({id: id},
                 function () {
                     $uibModalInstance.close(true);
                 });
-        };
+        }
     }
 })();

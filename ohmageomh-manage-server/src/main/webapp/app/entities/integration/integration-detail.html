@@ -2,29 +2,32 @@
 <div>
     <h2><span>Integration</span> {{vm.integration.id}}</h2>
     <hr>
-    <dl class="dl-horizontal">
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="dl-horizontal jh-entity-details">
         <dt><span>Name</span></dt>
         <dd>
             <span>{{vm.integration.name}}</span>
         </dd>
-        <hr>
         <dt><span>Description</span></dt>
         <dd>
             <span>{{vm.integration.description}}</span>
         </dd>
-        <hr>
         <dt><span>Data Type</span></dt>
         <dd>
             <span ng-repeat="dataType in vm.integration.dataTypes">
-                <a ui-sref="data-type-detail({id: {{dataType.id}}})">{{dataType.id}}</a>{{$last ? '' : ', '}}
+                <a ui-sref="data-type-detail({id: dataType.id})">{{dataType.id}}</a>{{$last ? '' : ', '}}
             </span>
         </dd>
-        <hr>
     </dl>
 
     <button type="submit"
-            onclick="window.history.back()"
+            ui-sref="{{ vm.previousState }}"
             class="btn btn-info">
         <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span> Back</span>
+    </button>
+
+    <button type="button" ui-sref="integration-detail.edit({id:vm.integration.id})" class="btn btn-primary">
+        <span class="glyphicon glyphicon-pencil"></span>
+        <span class="hidden-sm-down"> Edit</span>
     </button>
 </div>

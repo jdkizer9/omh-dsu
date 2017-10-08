@@ -20,7 +20,8 @@ public class Organization extends AbstractAuditingEntity implements Serializable
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @SequenceGenerator(name = "sequenceGenerator")
     private Long id;
 
     @Size(max = 255)
@@ -29,16 +30,17 @@ public class Organization extends AbstractAuditingEntity implements Serializable
 
     @ManyToMany
     @JoinTable(name = "organization_study",
-               joinColumns = @JoinColumn(name="organizations_id", referencedColumnName="ID"),
-               inverseJoinColumns = @JoinColumn(name="studies_id", referencedColumnName="ID"))
+               joinColumns = @JoinColumn(name="organizations_id", referencedColumnName="id"),
+               inverseJoinColumns = @JoinColumn(name="studies_id", referencedColumnName="id"))
     private Set<Study> studies = new HashSet<>();
 
     @ManyToMany
     @JoinTable(name = "organization_owner",
-               joinColumns = @JoinColumn(name="organizations_id", referencedColumnName="ID"),
-               inverseJoinColumns = @JoinColumn(name="owners_id", referencedColumnName="ID"))
+               joinColumns = @JoinColumn(name="organizations_id", referencedColumnName="id"),
+               inverseJoinColumns = @JoinColumn(name="owners_id", referencedColumnName="id"))
     private Set<User> owners = new HashSet<>();
 
+    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
         return id;
     }
@@ -70,6 +72,7 @@ public class Organization extends AbstractAuditingEntity implements Serializable
     public void setOwners(Set<User> users) {
         this.owners = users;
     }
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
     public boolean equals(Object o) {
@@ -80,22 +83,22 @@ public class Organization extends AbstractAuditingEntity implements Serializable
             return false;
         }
         Organization organization = (Organization) o;
-        if(organization.id == null || id == null) {
+        if (organization.getId() == null || getId() == null) {
             return false;
         }
-        return Objects.equals(id, organization.id);
+        return Objects.equals(getId(), organization.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hashCode(getId());
     }
 
     @Override
     public String toString() {
         return "Organization{" +
-            "id=" + id +
-            ", name='" + name + "'" +
-            '}';
+            "id=" + getId() +
+            ", name='" + getName() + "'" +
+            "}";
     }
 }

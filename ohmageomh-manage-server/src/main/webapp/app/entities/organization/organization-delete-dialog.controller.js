@@ -9,15 +9,20 @@
 
     function OrganizationDeleteController($uibModalInstance, entity, Organization) {
         var vm = this;
+
         vm.organization = entity;
-        vm.clear = function() {
+        vm.clear = clear;
+        vm.confirmDelete = confirmDelete;
+
+        function clear () {
             $uibModalInstance.dismiss('cancel');
-        };
-        vm.confirmDelete = function (id) {
+        }
+
+        function confirmDelete (id) {
             Organization.delete({id: id},
                 function () {
                     $uibModalInstance.close(true);
                 });
-        };
+        }
     }
 })();

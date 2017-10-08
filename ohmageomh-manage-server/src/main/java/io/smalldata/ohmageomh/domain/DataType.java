@@ -21,7 +21,8 @@ public class DataType extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @SequenceGenerator(name = "sequenceGenerator")
     private Long id;
 
     @NotNull
@@ -45,10 +46,6 @@ public class DataType extends AbstractAuditingEntity implements Serializable {
     @Column(name = "schema_version", length = 255)
     private String schemaVersion;
 
-    @Size(max = 255)
-    @Column(name = "date_field", length = 255)
-    private String dateField;
-
     @Column(name = "csv_mapper")
     private String csvMapper;
 
@@ -56,6 +53,7 @@ public class DataType extends AbstractAuditingEntity implements Serializable {
     @JsonIgnore
     private Set<Integration> integrations = new HashSet<>();
 
+    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
         return id;
     }
@@ -104,14 +102,6 @@ public class DataType extends AbstractAuditingEntity implements Serializable {
         this.schemaVersion = schemaVersion;
     }
 
-    public String getDateField() {
-        return dateField;
-    }
-
-    public void setDateField(String dateField) {
-        this.dateField = dateField;
-    }
-
     public String getCsvMapper() {
         return csvMapper;
     }
@@ -127,6 +117,7 @@ public class DataType extends AbstractAuditingEntity implements Serializable {
     public void setIntegrations(Set<Integration> integrations) {
         this.integrations = integrations;
     }
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
     public boolean equals(Object o) {
@@ -137,28 +128,27 @@ public class DataType extends AbstractAuditingEntity implements Serializable {
             return false;
         }
         DataType dataType = (DataType) o;
-        if(dataType.id == null || id == null) {
+        if (dataType.getId() == null || getId() == null) {
             return false;
         }
-        return Objects.equals(id, dataType.id);
+        return Objects.equals(getId(), dataType.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hashCode(getId());
     }
 
     @Override
     public String toString() {
         return "DataType{" +
-            "id=" + id +
-            ", name='" + name + "'" +
-            ", description='" + description + "'" +
-            ", schemaNamespace='" + schemaNamespace + "'" +
-            ", schemaName='" + schemaName + "'" +
-            ", schemaVersion='" + schemaVersion + "'" +
-            ", dateField='" + dateField + "'" +
-            ", csvMapper='" + csvMapper + "'" +
-            '}';
+            "id=" + getId() +
+            ", name='" + getName() + "'" +
+            ", description='" + getDescription() + "'" +
+            ", schemaNamespace='" + getSchemaNamespace() + "'" +
+            ", schemaName='" + getSchemaName() + "'" +
+            ", schemaVersion='" + getSchemaVersion() + "'" +
+            ", csvMapper='" + getCsvMapper() + "'" +
+            "}";
     }
 }

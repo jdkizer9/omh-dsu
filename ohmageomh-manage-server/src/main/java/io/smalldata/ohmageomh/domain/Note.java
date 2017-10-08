@@ -19,16 +19,17 @@ public class Note extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @SequenceGenerator(name = "sequenceGenerator")
     private Long id;
 
     @NotNull
     @Size(max = 1024)
-    @Column(name = "body", length = 1024, nullable = false)
+    @Column(name = "jhi_body", length = 1024, nullable = false)
     private String body;
 
     @NotNull
-    @Column(name = "date", nullable = false)
+    @Column(name = "jhi_date", nullable = false)
     private LocalDate date;
 
     @ManyToOne
@@ -40,6 +41,7 @@ public class Note extends AbstractAuditingEntity implements Serializable {
     @ManyToOne
     private Participant participant;
 
+    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
         return id;
     }
@@ -87,6 +89,7 @@ public class Note extends AbstractAuditingEntity implements Serializable {
     public void setParticipant(Participant participant) {
         this.participant = participant;
     }
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
     public boolean equals(Object o) {
@@ -97,23 +100,23 @@ public class Note extends AbstractAuditingEntity implements Serializable {
             return false;
         }
         Note note = (Note) o;
-        if(note.id == null || id == null) {
+        if (note.getId() == null || getId() == null) {
             return false;
         }
-        return Objects.equals(id, note.id);
+        return Objects.equals(getId(), note.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hashCode(getId());
     }
 
     @Override
     public String toString() {
         return "Note{" +
-            "id=" + id +
-            ", body='" + body + "'" +
-            ", date='" + date + "'" +
-            '}';
+            "id=" + getId() +
+            ", body='" + getBody() + "'" +
+            ", date='" + getDate() + "'" +
+            "}";
     }
 }

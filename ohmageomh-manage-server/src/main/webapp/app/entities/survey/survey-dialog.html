@@ -17,7 +17,7 @@
             <label class="control-label" for="field_name">Name</label>
             <input type="text" class="form-control" name="name" id="field_name"
                     ng-model="vm.survey.name"
-                    required ng-maxlength="255" />
+                    required ng-maxlength="255"/>
             <div ng-show="editForm.name.$invalid">
                 <p class="help-block"
                     ng-show="editForm.name.$error.required">
@@ -33,7 +33,7 @@
             <label class="control-label" for="field_version">Version</label>
             <input type="text" class="form-control" name="version" id="field_version"
                     ng-model="vm.survey.version"
-                    required ng-maxlength="255" />
+                    required ng-maxlength="255"/>
             <div ng-show="editForm.version.$invalid">
                 <p class="help-block"
                     ng-show="editForm.version.$error.required">
@@ -49,7 +49,7 @@
             <label class="control-label" for="field_description">Description</label>
             <input type="text" class="form-control" name="description" id="field_description"
                     ng-model="vm.survey.description"
-                    ng-maxlength="255" />
+                    ng-maxlength="255"/>
             <div ng-show="editForm.description.$invalid">
                 <p class="help-block"
                     ng-show="editForm.description.$error.maxlength">
@@ -59,9 +59,8 @@
         </div>
         <div class="form-group">
             <label class="control-label" for="field_isPublic">Is Public</label>
-            <input type="checkbox" class="form-control" name="isPublic" id="field_isPublic"
-                    ng-model="vm.survey.isPublic"
-                     />
+                <input type="checkbox" name="isPublic" id="field_isPublic"
+                          ng-model="vm.survey.isPublic"/>
             <div ng-show="editForm.isPublic.$invalid">
                 <p class="help-block"
                     ng-show="editForm.isPublic.$error.required">
@@ -71,9 +70,9 @@
         </div>
         <div class="form-group">
             <label class="control-label" for="field_definition">Definition</label>
-            <textarea rows="20" class="form-control" name="definition" id="field_definition"
+            <input type="text" class="form-control" name="definition" id="field_definition"
                     ng-model="vm.survey.definition"
-                    required ></textarea>
+                    required/>
             <div ng-show="editForm.definition.$invalid">
                 <p class="help-block"
                     ng-show="editForm.definition.$error.required">
@@ -87,7 +86,7 @@
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
             <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
         </button>
-        <button type="submit" ng-disabled="editForm.$invalid || isSaving" class="btn btn-primary">
+        <button type="submit" ng-disabled="editForm.$invalid || vm.isSaving" class="btn btn-primary">
             <span class="glyphicon glyphicon-save"></span>&nbsp;<span>Save</span>
         </button>
     </div>

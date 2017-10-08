@@ -5,29 +5,40 @@
         .module('ohmageApp')
         .controller('ParticipantController', ParticipantController);
 
-    ParticipantController.$inject = ['$scope', '$state', 'Participant', 'ParticipantSearch', 'ParseLinks', 'AlertService', 'pagingParams', 'paginationConstants'];
+    ParticipantController.$inject = ['$state', 'Participant', 'ParticipantSearch', 'ParseLinks', 'AlertService', 'paginationConstants', 'pagingParams'];
 
-    function ParticipantController ($scope, $state, Participant, ParticipantSearch, ParseLinks, AlertService, pagingParams, paginationConstants) {
+    function ParticipantController($state, Participant, ParticipantSearch, ParseLinks, AlertService, paginationConstants, pagingParams) {
+
         var vm = this;
-        vm.loadAll = loadAll;
+
         vm.loadPage = loadPage;
         vm.predicate = pagingParams.predicate;
         vm.reverse = pagingParams.ascending;
         vm.transition = transition;
+        vm.itemsPerPage = paginationConstants.itemsPerPage;
         vm.clear = clear;
         vm.search = search;
+        vm.loadAll = loadAll;
         vm.searchQuery = pagingParams.search;
         vm.currentSearch = pagingParams.search;
-        vm.loadAll();
+
+        loadAll();
 
         function loadAll () {
-            // Disabled pagination
-            Participant.query({
-                page: 0,
-                size: 10000,
-                sort: sort()
-            }, onSuccess, onError);
-
+            if (pagingParams.search) {
+                ParticipantSearch.query({
+                    query: pagingParams.search,
+                    page: pagingParams.page - 1,
+                    size: vm.itemsPerPage,
+                    sort: sort()
+                }, onSuccess, onError);
+            } else {
+                Participant.query({
+                    page: pagingParams.page - 1,
+                    size: vm.itemsPerPage,
+                    sort: sort()
+                }, onSuccess, onError);
+            }
             function sort() {
                 var result = [vm.predicate + ',' + (vm.reverse ? 'asc' : 'desc')];
                 if (vm.predicate !== 'id') {
@@ -47,12 +58,12 @@
             }
         }
 
-        function loadPage (page) {
+        function loadPage(page) {
             vm.page = page;
             vm.transition();
         }
 
-        function transition () {
+        function transition() {
             $state.transitionTo($state.$current, {
                 page: vm.page,
                 sort: vm.predicate + ',' + (vm.reverse ? 'asc' : 'desc'),
@@ -60,7 +71,7 @@
             });
         }
 
-        function search (searchQuery) {
+        function search(searchQuery) {
             if (!searchQuery){
                 return vm.clear();
             }
@@ -72,7 +83,7 @@
             vm.transition();
         }
 
-        function clear () {
+        function clear() {
             vm.links = null;
             vm.page = 1;
             vm.predicate = 'id';
@@ -80,6 +91,5 @@
             vm.currentSearch = null;
             vm.transition();
         }
-
     }
 })();

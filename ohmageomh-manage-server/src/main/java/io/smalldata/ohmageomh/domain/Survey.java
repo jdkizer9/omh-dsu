@@ -1,7 +1,6 @@
 package io.smalldata.ohmageomh.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.Type;
 import org.springframework.data.elasticsearch.annotations.Document;
 
 import javax.persistence.*;
@@ -22,7 +21,8 @@ public class Survey extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @SequenceGenerator(name = "sequenceGenerator")
     private Long id;
 
     @NotNull
@@ -45,13 +45,13 @@ public class Survey extends AbstractAuditingEntity implements Serializable {
 
     @NotNull
     @Column(name = "definition", nullable = false)
-    @Type(type = "text")
     private String definition;
 
     @ManyToMany(mappedBy = "surveys")
     @JsonIgnore
     private Set<Study> studies = new HashSet<>();
 
+    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
         return id;
     }
@@ -107,6 +107,7 @@ public class Survey extends AbstractAuditingEntity implements Serializable {
     public void setStudies(Set<Study> studies) {
         this.studies = studies;
     }
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
     public boolean equals(Object o) {
@@ -117,26 +118,26 @@ public class Survey extends AbstractAuditingEntity implements Serializable {
             return false;
         }
         Survey survey = (Survey) o;
-        if(survey.id == null || id == null) {
+        if (survey.getId() == null || getId() == null) {
             return false;
         }
-        return Objects.equals(id, survey.id);
+        return Objects.equals(getId(), survey.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hashCode(getId());
     }
 
     @Override
     public String toString() {
         return "Survey{" +
-            "id=" + id +
-            ", name='" + name + "'" +
-            ", version='" + version + "'" +
-            ", description='" + description + "'" +
-            ", isPublic='" + isPublic + "'" +
-            ", definition='" + definition + "'" +
-            '}';
+            "id=" + getId() +
+            ", name='" + getName() + "'" +
+            ", version='" + getVersion() + "'" +
+            ", description='" + getDescription() + "'" +
+            ", isPublic='" + isIsPublic() + "'" +
+            ", definition='" + getDefinition() + "'" +
+            "}";
     }
 }

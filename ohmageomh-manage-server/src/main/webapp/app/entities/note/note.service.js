@@ -14,23 +14,27 @@
             'get': {
                 method: 'GET',
                 transformResponse: function (data) {
-                    data = angular.fromJson(data);
-                    data.date = DateUtils.convertLocalDateFromServer(data.date);
+                    if (data) {
+                        data = angular.fromJson(data);
+                        data.date = DateUtils.convertLocalDateFromServer(data.date);
+                    }
                     return data;
                 }
             },
             'update': {
                 method: 'PUT',
                 transformRequest: function (data) {
-                    data.date = DateUtils.convertLocalDateToServer(data.date);
-                    return angular.toJson(data);
+                    var copy = angular.copy(data);
+                    copy.date = DateUtils.convertLocalDateToServer(copy.date);
+                    return angular.toJson(copy);
                 }
             },
             'save': {
                 method: 'POST',
                 transformRequest: function (data) {
-                    data.date = DateUtils.convertLocalDateToServer(data.date);
-                    return angular.toJson(data);
+                    var copy = angular.copy(data);
+                    copy.date = DateUtils.convertLocalDateToServer(copy.date);
+                    return angular.toJson(copy);
                 }
             }
         });

@@ -1,88 +1,102 @@
 package io.smalldata.ohmageomh.web.rest;
 
 import io.smalldata.ohmageomh.OhmageApp;
+
 import io.smalldata.ohmageomh.domain.Participant;
 import io.smalldata.ohmageomh.repository.ParticipantRepository;
 import io.smalldata.ohmageomh.service.ParticipantService;
 import io.smalldata.ohmageomh.repository.search.ParticipantSearchRepository;
+import io.smalldata.ohmageomh.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.hamcrest.Matchers.hasItem;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 
 /**
  * Test class for the ParticipantResource REST controller.
  *
  * @see ParticipantResource
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = OhmageApp.class)
-@WebAppConfiguration
-@IntegrationTest
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = OhmageApp.class)
 public class ParticipantResourceIntTest {
 
-    private static final String DEFAULT_DSU_ID = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private static final String UPDATED_DSU_ID = "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB";
-    private static final String DEFAULT_LABEL = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private static final String UPDATED_LABEL = "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB";
+    private static final String DEFAULT_DSU_ID = "AAAAAAAAAA";
+    private static final String UPDATED_DSU_ID = "BBBBBBBBBB";
 
-    @Inject
+    private static final String DEFAULT_LABEL = "AAAAAAAAAA";
+    private static final String UPDATED_LABEL = "BBBBBBBBBB";
+
+    @Autowired
     private ParticipantRepository participantRepository;
 
-    @Inject
+    @Autowired
     private ParticipantService participantService;
 
-    @Inject
+    @Autowired
     private ParticipantSearchRepository participantSearchRepository;
 
-    @Inject
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
-    @Inject
+    @Autowired
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
+
+    @Autowired
+    private ExceptionTranslator exceptionTranslator;
+
+    @Autowired
+    private EntityManager em;
 
     private MockMvc restParticipantMockMvc;
 
     private Participant participant;
 
-    @PostConstruct
+    @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        ParticipantResource participantResource = new ParticipantResource();
-        ReflectionTestUtils.setField(participantResource, "participantService", participantService);
+        final ParticipantResource participantResource = new ParticipantResource(participantService);
         this.restParticipantMockMvc = MockMvcBuilders.standaloneSetup(participantResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
+            .setControllerAdvice(exceptionTranslator)
             .setMessageConverters(jacksonMessageConverter).build();
+    }
+
+    /**
+     * Create an entity for this test.
+     *
+     * This is a static method, as tests for other entities might also need it,
+     * if they test an entity which requires the current entity.
+     */
+    public static Participant createEntity(EntityManager em) {
+        Participant participant = new Participant();
+        participant.setDsuId(DEFAULT_DSU_ID);
+        participant.setLabel(DEFAULT_LABEL);
+        return participant;
     }
 
     @Before
     public void initTest() {
         participantSearchRepository.deleteAll();
-        participant = new Participant();
-        participant.setDsuId(DEFAULT_DSU_ID);
-        participant.setLabel(DEFAULT_LABEL);
+        participant = createEntity(em);
     }
 
     @Test
@@ -91,22 +105,40 @@ public class ParticipantResourceIntTest {
         int databaseSizeBeforeCreate = participantRepository.findAll().size();
 
         // Create the Participant
-
         restParticipantMockMvc.perform(post("/api/participants")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(participant)))
-                .andExpect(status().isCreated());
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(participant)))
+            .andExpect(status().isCreated());
 
         // Validate the Participant in the database
-        List<Participant> participants = participantRepository.findAll();
-        assertThat(participants).hasSize(databaseSizeBeforeCreate + 1);
-        Participant testParticipant = participants.get(participants.size() - 1);
+        List<Participant> participantList = participantRepository.findAll();
+        assertThat(participantList).hasSize(databaseSizeBeforeCreate + 1);
+        Participant testParticipant = participantList.get(participantList.size() - 1);
         assertThat(testParticipant.getDsuId()).isEqualTo(DEFAULT_DSU_ID);
         assertThat(testParticipant.getLabel()).isEqualTo(DEFAULT_LABEL);
 
-        // Validate the Participant in ElasticSearch
+        // Validate the Participant in Elasticsearch
         Participant participantEs = participantSearchRepository.findOne(testParticipant.getId());
         assertThat(participantEs).isEqualToComparingFieldByField(testParticipant);
+    }
+
+    @Test
+    @Transactional
+    public void createParticipantWithExistingId() throws Exception {
+        int databaseSizeBeforeCreate = participantRepository.findAll().size();
+
+        // Create the Participant with an existing ID
+        participant.setId(1L);
+
+        // An entity with an existing ID cannot be created, so this API call must fail
+        restParticipantMockMvc.perform(post("/api/participants")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(participant)))
+            .andExpect(status().isBadRequest());
+
+        // Validate the Participant in the database
+        List<Participant> participantList = participantRepository.findAll();
+        assertThat(participantList).hasSize(databaseSizeBeforeCreate);
     }
 
     @Test
@@ -119,12 +151,12 @@ public class ParticipantResourceIntTest {
         // Create the Participant, which fails.
 
         restParticipantMockMvc.perform(post("/api/participants")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(participant)))
-                .andExpect(status().isBadRequest());
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(participant)))
+            .andExpect(status().isBadRequest());
 
-        List<Participant> participants = participantRepository.findAll();
-        assertThat(participants).hasSize(databaseSizeBeforeTest);
+        List<Participant> participantList = participantRepository.findAll();
+        assertThat(participantList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
@@ -133,13 +165,13 @@ public class ParticipantResourceIntTest {
         // Initialize the database
         participantRepository.saveAndFlush(participant);
 
-        // Get all the participants
+        // Get all the participantList
         restParticipantMockMvc.perform(get("/api/participants?sort=id,desc"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.[*].id").value(hasItem(participant.getId().intValue())))
-                .andExpect(jsonPath("$.[*].dsuId").value(hasItem(DEFAULT_DSU_ID.toString())))
-                .andExpect(jsonPath("$.[*].label").value(hasItem(DEFAULT_LABEL.toString())));
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(participant.getId().intValue())))
+            .andExpect(jsonPath("$.[*].dsuId").value(hasItem(DEFAULT_DSU_ID.toString())))
+            .andExpect(jsonPath("$.[*].label").value(hasItem(DEFAULT_LABEL.toString())));
     }
 
     @Test
@@ -151,7 +183,7 @@ public class ParticipantResourceIntTest {
         // Get the participant
         restParticipantMockMvc.perform(get("/api/participants/{id}", participant.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(participant.getId().intValue()))
             .andExpect(jsonPath("$.dsuId").value(DEFAULT_DSU_ID.toString()))
             .andExpect(jsonPath("$.label").value(DEFAULT_LABEL.toString()));
@@ -162,7 +194,7 @@ public class ParticipantResourceIntTest {
     public void getNonExistingParticipant() throws Exception {
         // Get the participant
         restParticipantMockMvc.perform(get("/api/participants/{id}", Long.MAX_VALUE))
-                .andExpect(status().isNotFound());
+            .andExpect(status().isNotFound());
     }
 
     @Test
@@ -174,26 +206,43 @@ public class ParticipantResourceIntTest {
         int databaseSizeBeforeUpdate = participantRepository.findAll().size();
 
         // Update the participant
-        Participant updatedParticipant = new Participant();
-        updatedParticipant.setId(participant.getId());
+        Participant updatedParticipant = participantRepository.findOne(participant.getId());
         updatedParticipant.setDsuId(UPDATED_DSU_ID);
         updatedParticipant.setLabel(UPDATED_LABEL);
 
         restParticipantMockMvc.perform(put("/api/participants")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(updatedParticipant)))
-                .andExpect(status().isOk());
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(updatedParticipant)))
+            .andExpect(status().isOk());
 
         // Validate the Participant in the database
-        List<Participant> participants = participantRepository.findAll();
-        assertThat(participants).hasSize(databaseSizeBeforeUpdate);
-        Participant testParticipant = participants.get(participants.size() - 1);
+        List<Participant> participantList = participantRepository.findAll();
+        assertThat(participantList).hasSize(databaseSizeBeforeUpdate);
+        Participant testParticipant = participantList.get(participantList.size() - 1);
         assertThat(testParticipant.getDsuId()).isEqualTo(UPDATED_DSU_ID);
         assertThat(testParticipant.getLabel()).isEqualTo(UPDATED_LABEL);
 
-        // Validate the Participant in ElasticSearch
+        // Validate the Participant in Elasticsearch
         Participant participantEs = participantSearchRepository.findOne(testParticipant.getId());
         assertThat(participantEs).isEqualToComparingFieldByField(testParticipant);
+    }
+
+    @Test
+    @Transactional
+    public void updateNonExistingParticipant() throws Exception {
+        int databaseSizeBeforeUpdate = participantRepository.findAll().size();
+
+        // Create the Participant
+
+        // If the entity doesn't have an ID, it will be created instead of just being updated
+        restParticipantMockMvc.perform(put("/api/participants")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(participant)))
+            .andExpect(status().isCreated());
+
+        // Validate the Participant in the database
+        List<Participant> participantList = participantRepository.findAll();
+        assertThat(participantList).hasSize(databaseSizeBeforeUpdate + 1);
     }
 
     @Test
@@ -206,16 +255,16 @@ public class ParticipantResourceIntTest {
 
         // Get the participant
         restParticipantMockMvc.perform(delete("/api/participants/{id}", participant.getId())
-                .accept(TestUtil.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk());
+            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(status().isOk());
 
-        // Validate ElasticSearch is empty
+        // Validate Elasticsearch is empty
         boolean participantExistsInEs = participantSearchRepository.exists(participant.getId());
         assertThat(participantExistsInEs).isFalse();
 
         // Validate the database is empty
-        List<Participant> participants = participantRepository.findAll();
-        assertThat(participants).hasSize(databaseSizeBeforeDelete - 1);
+        List<Participant> participantList = participantRepository.findAll();
+        assertThat(participantList).hasSize(databaseSizeBeforeDelete - 1);
     }
 
     @Test
@@ -227,9 +276,24 @@ public class ParticipantResourceIntTest {
         // Search the participant
         restParticipantMockMvc.perform(get("/api/_search/participants?query=id:" + participant.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(participant.getId().intValue())))
             .andExpect(jsonPath("$.[*].dsuId").value(hasItem(DEFAULT_DSU_ID.toString())))
             .andExpect(jsonPath("$.[*].label").value(hasItem(DEFAULT_LABEL.toString())));
+    }
+
+    @Test
+    @Transactional
+    public void equalsVerifier() throws Exception {
+        TestUtil.equalsVerifier(Participant.class);
+        Participant participant1 = new Participant();
+        participant1.setId(1L);
+        Participant participant2 = new Participant();
+        participant2.setId(participant1.getId());
+        assertThat(participant1).isEqualTo(participant2);
+        participant2.setId(2L);
+        assertThat(participant1).isNotEqualTo(participant2);
+        participant1.setId(null);
+        assertThat(participant1).isNotEqualTo(participant2);
     }
 }

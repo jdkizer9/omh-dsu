@@ -17,7 +17,7 @@
             <label class="control-label" for="field_dsuId">Dsu Id</label>
             <input type="text" class="form-control" name="dsuId" id="field_dsuId"
                     ng-model="vm.participant.dsuId"
-                    required ng-maxlength="255" />
+                    required ng-maxlength="255"/>
             <div ng-show="editForm.dsuId.$invalid">
                 <p class="help-block"
                     ng-show="editForm.dsuId.$error.required">
@@ -33,7 +33,7 @@
             <label class="control-label" for="field_label">Label</label>
             <input type="text" class="form-control" name="label" id="field_label"
                     ng-model="vm.participant.label"
-                    ng-maxlength="255" />
+                    ng-maxlength="255"/>
             <div ng-show="editForm.label.$invalid">
                 <p class="help-block"
                     ng-show="editForm.label.$error.maxlength">
@@ -51,7 +51,7 @@
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
             <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
         </button>
-        <button type="submit" ng-disabled="editForm.$invalid || isSaving" class="btn btn-primary">
+        <button type="submit" ng-disabled="editForm.$invalid || vm.isSaving" class="btn btn-primary">
             <span class="glyphicon glyphicon-save"></span>&nbsp;<span>Save</span>
         </button>
     </div>

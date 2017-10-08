@@ -21,7 +21,8 @@ public class Integration extends AbstractAuditingEntity implements Serializable 
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @SequenceGenerator(name = "sequenceGenerator")
     private Long id;
 
     @NotNull
@@ -33,16 +34,17 @@ public class Integration extends AbstractAuditingEntity implements Serializable 
     @Column(name = "description", length = 255)
     private String description;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(name = "integration_data_type",
-               joinColumns = @JoinColumn(name="integrations_id", referencedColumnName="ID"),
-               inverseJoinColumns = @JoinColumn(name="data_types_id", referencedColumnName="ID"))
+               joinColumns = @JoinColumn(name="integrations_id", referencedColumnName="id"),
+               inverseJoinColumns = @JoinColumn(name="data_types_id", referencedColumnName="id"))
     private Set<DataType> dataTypes = new HashSet<>();
 
     @ManyToMany(mappedBy = "integrations")
     @JsonIgnore
     private Set<Study> studies = new HashSet<>();
 
+    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
         return id;
     }
@@ -82,6 +84,7 @@ public class Integration extends AbstractAuditingEntity implements Serializable 
     public void setStudies(Set<Study> studies) {
         this.studies = studies;
     }
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
     public boolean equals(Object o) {
@@ -92,23 +95,23 @@ public class Integration extends AbstractAuditingEntity implements Serializable 
             return false;
         }
         Integration integration = (Integration) o;
-        if(integration.id == null || id == null) {
+        if (integration.getId() == null || getId() == null) {
             return false;
         }
-        return Objects.equals(id, integration.id);
+        return Objects.equals(getId(), integration.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hashCode(getId());
     }
 
     @Override
     public String toString() {
         return "Integration{" +
-            "id=" + id +
-            ", name='" + name + "'" +
-            ", description='" + description + "'" +
-            '}';
+            "id=" + getId() +
+            ", name='" + getName() + "'" +
+            ", description='" + getDescription() + "'" +
+            "}";
     }
 }

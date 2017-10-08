@@ -8,13 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
@@ -26,19 +22,23 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 public class NoteServiceImpl implements NoteService{
 
     private final Logger log = LoggerFactory.getLogger(NoteServiceImpl.class);
-    
-    @Inject
-    private NoteRepository noteRepository;
-    
-    @Inject
-    private NoteSearchRepository noteSearchRepository;
-    
+
+    private final NoteRepository noteRepository;
+
+    private final NoteSearchRepository noteSearchRepository;
+
+    public NoteServiceImpl(NoteRepository noteRepository, NoteSearchRepository noteSearchRepository) {
+        this.noteRepository = noteRepository;
+        this.noteSearchRepository = noteSearchRepository;
+    }
+
     /**
      * Save a note.
-     * 
+     *
      * @param note the entity to save
      * @return the persisted entity
      */
+    @Override
     public Note save(Note note) {
         log.debug("Request to save Note : {}", note);
         Note result = noteRepository.save(note);
@@ -48,15 +48,15 @@ public class NoteServiceImpl implements NoteService{
 
     /**
      *  Get all the notes.
-     *  
+     *
      *  @param pageable the pagination information
      *  @return the list of entities
      */
-    @Transactional(readOnly = true) 
+    @Override
+    @Transactional(readOnly = true)
     public Page<Note> findAll(Pageable pageable) {
         log.debug("Request to get all Notes");
-        Page<Note> result = noteRepository.findAll(pageable); 
-        return result;
+        return noteRepository.findAll(pageable);
     }
 
     /**
@@ -65,18 +65,19 @@ public class NoteServiceImpl implements NoteService{
      *  @param id the id of the entity
      *  @return the entity
      */
-    @Transactional(readOnly = true) 
+    @Override
+    @Transactional(readOnly = true)
     public Note findOne(Long id) {
         log.debug("Request to get Note : {}", id);
-        Note note = noteRepository.findOne(id);
-        return note;
+        return noteRepository.findOne(id);
     }
 
     /**
      *  Delete the  note by id.
-     *  
+     *
      *  @param id the id of the entity
      */
+    @Override
     public void delete(Long id) {
         log.debug("Request to delete Note : {}", id);
         noteRepository.delete(id);
@@ -87,11 +88,14 @@ public class NoteServiceImpl implements NoteService{
      * Search for the note corresponding to the query.
      *
      *  @param query the query of the search
+     *  @param pageable the pagination information
      *  @return the list of entities
      */
+    @Override
     @Transactional(readOnly = true)
     public Page<Note> search(String query, Pageable pageable) {
         log.debug("Request to search for a page of Notes for query {}", query);
-        return noteSearchRepository.search(queryStringQuery(query), pageable);
+        Page<Note> result = noteSearchRepository.search(queryStringQuery(query), pageable);
+        return result;
     }
 }

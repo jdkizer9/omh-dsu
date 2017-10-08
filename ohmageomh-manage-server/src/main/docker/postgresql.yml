@@ -1,10 +1,9 @@
 version: '2'
 services:
     ohmage-postgresql:
-        container_name: ohmage-postgresql
-        image: postgres:9.5.1
+        image: postgres:9.6.5
         # volumes:
-        #     - ~/volumes/jhipster/Ohmage/postgresql/:/var/lib/postgresql/
+        #     - ~/volumes/jhipster/Ohmage/postgresql/:/var/lib/postgresql/data/
         environment:
             - POSTGRES_USER=Ohmage
             - POSTGRES_PASSWORD=

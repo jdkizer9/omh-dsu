@@ -5,23 +5,23 @@ import io.smalldata.ohmageomh.domain.Note;
 import io.smalldata.ohmageomh.service.NoteService;
 import io.smalldata.ohmageomh.web.rest.util.HeaderUtil;
 import io.smalldata.ohmageomh.web.rest.util.PaginationUtil;
+import io.swagger.annotations.ApiParam;
+import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.inject.Inject;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
@@ -34,10 +34,15 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 public class NoteResource {
 
     private final Logger log = LoggerFactory.getLogger(NoteResource.class);
-        
-    @Inject
-    private NoteService noteService;
-    
+
+    private static final String ENTITY_NAME = "note";
+
+    private final NoteService noteService;
+
+    public NoteResource(NoteService noteService) {
+        this.noteService = noteService;
+    }
+
     /**
      * POST  /notes : Create a new note.
      *
@@ -45,18 +50,16 @@ public class NoteResource {
      * @return the ResponseEntity with status 201 (Created) and with body the new note, or with status 400 (Bad Request) if the note has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @RequestMapping(value = "/notes",
-        method = RequestMethod.POST,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping("/notes")
     @Timed
     public ResponseEntity<Note> createNote(@Valid @RequestBody Note note) throws URISyntaxException {
         log.debug("REST request to save Note : {}", note);
         if (note.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("note", "idexists", "A new note cannot already have an ID")).body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new note cannot already have an ID")).body(null);
         }
         Note result = noteService.save(note);
         return ResponseEntity.created(new URI("/api/notes/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert("note", result.getId().toString()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
 
@@ -66,12 +69,10 @@ public class NoteResource {
      * @param note the note to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated note,
      * or with status 400 (Bad Request) if the note is not valid,
-     * or with status 500 (Internal Server Error) if the note couldnt be updated
+     * or with status 500 (Internal Server Error) if the note couldn't be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @RequestMapping(value = "/notes",
-        method = RequestMethod.PUT,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping("/notes")
     @Timed
     public ResponseEntity<Note> updateNote(@Valid @RequestBody Note note) throws URISyntaxException {
         log.debug("REST request to update Note : {}", note);
@@ -80,7 +81,7 @@ public class NoteResource {
         }
         Note result = noteService.save(note);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert("note", note.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, note.getId().toString()))
             .body(result);
     }
 
@@ -89,16 +90,12 @@ public class NoteResource {
      *
      * @param pageable the pagination information
      * @return the ResponseEntity with status 200 (OK) and the list of notes in body
-     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
-    @RequestMapping(value = "/notes",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/notes")
     @Timed
-    public ResponseEntity<List<Note>> getAllNotes(Pageable pageable)
-        throws URISyntaxException {
+    public ResponseEntity<List<Note>> getAllNotes(@ApiParam Pageable pageable) {
         log.debug("REST request to get a page of Notes");
-        Page<Note> page = noteService.findAll(pageable); 
+        Page<Note> page = noteService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/notes");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -109,18 +106,12 @@ public class NoteResource {
      * @param id the id of the note to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the note, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/notes/{id}",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/notes/{id}")
     @Timed
     public ResponseEntity<Note> getNote(@PathVariable Long id) {
         log.debug("REST request to get Note : {}", id);
         Note note = noteService.findOne(id);
-        return Optional.ofNullable(note)
-            .map(result -> new ResponseEntity<>(
-                result,
-                HttpStatus.OK))
-            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(note));
     }
 
     /**
@@ -129,14 +120,12 @@ public class NoteResource {
      * @param id the id of the note to delete
      * @return the ResponseEntity with status 200 (OK)
      */
-    @RequestMapping(value = "/notes/{id}",
-        method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping("/notes/{id}")
     @Timed
     public ResponseEntity<Void> deleteNote(@PathVariable Long id) {
         log.debug("REST request to delete Note : {}", id);
         noteService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("note", id.toString())).build();
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
 
     /**
@@ -144,14 +133,12 @@ public class NoteResource {
      * to the query.
      *
      * @param query the query of the note search
+     * @param pageable the pagination information
      * @return the result of the search
      */
-    @RequestMapping(value = "/_search/notes",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/_search/notes")
     @Timed
-    public ResponseEntity<List<Note>> searchNotes(@RequestParam String query, Pageable pageable)
-        throws URISyntaxException {
+    public ResponseEntity<List<Note>> searchNotes(@RequestParam String query, @ApiParam Pageable pageable) {
         log.debug("REST request to search for a page of Notes for query {}", query);
         Page<Note> page = noteService.search(query, pageable);
         HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(query, page, "/api/_search/notes");

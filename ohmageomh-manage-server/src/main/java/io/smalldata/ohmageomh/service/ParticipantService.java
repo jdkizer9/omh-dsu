@@ -1,12 +1,8 @@
 package io.smalldata.ohmageomh.service;
 
 import io.smalldata.ohmageomh.domain.Participant;
-import io.smalldata.ohmageomh.domain.Study;
-import io.smalldata.ohmageomh.web.rest.dto.ParticipantSummaryDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import java.util.List;
 
 /**
  * Service Interface for managing Participant.
@@ -48,25 +44,9 @@ public interface ParticipantService {
      * Search for the participant corresponding to the query.
      *
      *  @param query the query of the search
+     *  
+     *  @param pageable the pagination information
      *  @return the list of entities
      */
     Page<Participant> search(String query, Pageable pageable);
-
-    /**
-     * Search for the participants in the study.
-     *
-     *  @param study the study to filter by
-     *  @param pageable the pagination information
-     *  @return the list of entities
-     */
-    Page<Participant> findAllByStudy(Study study, Pageable pageable);
-
-    /**
-     * Search for the participants in the study, appended with data summary information.
-     *
-     *  @param study the study to filter by
-     *  @param pageable the pagination information
-     *  @return the list of entities
-     */
-    Page<ParticipantSummaryDTO> findAllSummariesByStudy(Study study, Pageable pageable);
 }
