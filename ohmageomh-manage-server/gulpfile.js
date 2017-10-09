@@ -30,7 +30,47 @@ gulp.task('clean', function () {
     return del([config.dist], { dot: true });
 });
 
-gulp.task('copy', ['copy:fonts', 'copy:common']);
+gulp.task('copy', ['copy:old', 'copy:fonts', 'copy:common']);
+
+gulp.task('copy:old', function () {
+    return es.merge(
+        gulp.src(config.bower + 'bootstrap/fonts/*.*')
+            .pipe(plumber({errorHandler: handleErrors}))
+            .pipe(changed(config.dist + 'content/fonts/'))
+            .pipe(rev())
+            .pipe(gulp.dest(config.dist + 'content/fonts/'))
+            .pipe(rev.manifest(config.revManifest, {
+                base: config.dist,
+                merge: true
+            }))
+            .pipe(gulp.dest(config.dist)),
+        gulp.src(config.bower + 'angular-ui-grid/**/*.{ttf,woff}')
+            .pipe(plumber({errorHandler: handleErrors}))
+            .pipe(changed(config.dist + 'content/fonts/'))
+            .pipe(rev())
+            .pipe(gulp.dest(config.dist + 'content/css/'))
+            .pipe(rev.manifest(config.revManifest, {
+                base: config.dist,
+                merge: true
+            }))
+            .pipe(gulp.dest(config.dist)),
+        gulp.src(config.app + 'content/**/*.{woff,woff2,svg,ttf,eot,otf}')
+            .pipe(plumber({errorHandler: handleErrors}))
+            .pipe(changed(config.dist + 'content/fonts/'))
+            .pipe(flatten())
+            .pipe(rev())
+            .pipe(gulp.dest(config.dist + 'content/fonts/'))
+            .pipe(rev.manifest(config.revManifest, {
+                base: config.dist,
+                merge: true
+            }))
+            .pipe(gulp.dest(config.dist)),
+        gulp.src([config.app + 'robots.txt', config.app + 'favicon.ico', config.app + '.htaccess'], { dot: true })
+            .pipe(plumber({errorHandler: handleErrors}))
+            .pipe(changed(config.dist))
+            .pipe(gulp.dest(config.dist))
+    );
+});
 
 gulp.task('copy:fonts', copy.fonts);
 
@@ -92,6 +132,7 @@ gulp.task('ngconstant:dev', function () {
     return ngConstant({
         name: 'ohmageApp',
         constants: {
+            ENV: 'prod',
             VERSION: util.parseVersion(),
             DEBUG_INFO_ENABLED: true,
             BUILD_TIMESTAMP: ''
@@ -107,6 +148,7 @@ gulp.task('ngconstant:prod', function () {
     return ngConstant({
         name: 'ohmageApp',
         constants: {
+            ENV: 'dev',
             VERSION: util.parseVersion(),
             DEBUG_INFO_ENABLED: false,
             BUILD_TIMESTAMP: new Date().getTime()

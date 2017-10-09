@@ -1,11 +1,11 @@
 <div ng-cloak>
     <div class="row">
         <div class="col-md-4">
-            <span class="hipster img-responsive img-rounded"></span>
+            <span class="logo-lg img-responsive img-rounded"></span>
         </div>
         <div class="col-md-8">
-            <h1>Welcome, Java Hipster!</h1>
-            <p class="lead">This is your homepage</p>
+            <h1>Welcome to Ohmage-omh!</h1>
+            <p class="lead">This is the Study Manager Portal.</p>
 
             <div ng-switch="vm.isAuthenticated()">
                 <div class="alert alert-success" ng-switch-when="true">
@@ -13,7 +13,7 @@
                 </div>
 
                 <div class="alert alert-warning" ng-switch-when="false">
-                    If you want to <a class="alert-link" href="" ng-click="vm.login()">sign in</a>, you can try the default accounts:<br/>- Administrator (login="admin" and password="admin") <br/>- User (login="user" and password="user").
+                    Go ahead and <a class="alert-link" href="" ng-click="vm.login()">sign in</a>.
                 </div>
 
                 <div class="alert alert-warning" ng-switch-when="false">
@@ -21,21 +21,22 @@
                 </div>
             </div>
 
+            <div ng-show="vm.isAuthenticated()" has-authority="ROLE_USER">
+                <p>You have access to following studies:</p>
+                <ul ng-repeat="study in vm.studies">
+                    <li><a ui-sref="dashboard({study: study.id})">{{study.name}}</a></li>
+                </ul>
+                <br/>
+            </div>
+
             <p>
-                If you have any question on JHipster:
+                If you have any question on Ohmage-omh, you can visit the links below.
             </p>
 
             <ul>
-                <li><a href="http://www.jhipster.tech/" target="_blank" rel="noopener">JHipster homepage</a></li>
-                <li><a href="http://stackoverflow.com/tags/jhipster/info" target="_blank" rel="noopener">JHipster on Stack Overflow</a></li>
-                <li><a href="https://github.com/jhipster/generator-jhipster/issues?state=open" target="_blank" rel="noopener">JHipster bug tracker</a></li>
-                <li><a href="https://gitter.im/jhipster/generator-jhipster" target="_blank" rel="noopener">JHipster public chat room</a></li>
-                <li><a href="https://twitter.com/java_hipster" target="_blank" rel="noopener">follow @java_hipster on Twitter</a></li>
+                <li><a href="http://smalldata.io/" target="_blank">Small Data Lab</a></li>
+                <li><a href="https://github.com/smalldatalab/omh-dsu" target="_blank">Ohmage-omh source code on Github</a></li>
             </ul>
-
-            <p>
-             <span>If you like JHipster, don't forget to give us a star on </span>&nbsp;<a href="https://github.com/jhipster/generator-jhipster" target="_blank" rel="noopener">GitHub</a>!
-            </p>
         </div>
     </div>
 </div>

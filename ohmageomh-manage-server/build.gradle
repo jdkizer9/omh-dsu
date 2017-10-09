@@ -103,11 +103,16 @@ apply from: 'gradle/liquibase.gradle'
 apply from: 'gradle/mapstruct.gradle'
 //jhipster-needle-gradle-apply-from - JHipster will add additional gradle scripts to be applied here
 
+group = 'io.smalldata.ohmageomh'
+version = '2.0.4'
+
 if (project.hasProperty('prod')) {
     apply from: 'gradle/profile_prod.gradle'
 } else {
     apply from: 'gradle/profile_dev.gradle'
 }
+
+description = ''
 
 if (project.hasProperty('graphite')) {
     apply from: 'gradle/graphite.gradle'

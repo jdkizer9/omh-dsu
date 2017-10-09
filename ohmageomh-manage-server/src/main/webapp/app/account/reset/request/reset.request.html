@@ -4,15 +4,15 @@
             <h1>Reset your password</h1>
 
             <div class="alert alert-danger" ng-show="vm.errorEmailNotExists">
-                <strong>Email address isn't registered!</strong> Please check and try again.
+                <strong>E-Mail address isn't registered!</strong> Please check and try again.
             </div>
 
             <div class="alert alert-warning" ng-hide="vm.success">
-                <p>Enter the email address you used to register.</p>
+                <p>Enter the e-mail address you used to register.</p>
             </div>
 
-            <div class="alert alert-success" ng-show="vm.success === 'OK'">
-                <p>Check your emails for details on how to reset your password.</p>
+            <div class="alert alert-success" ng-show="vm.success == 'OK'">
+                <p>Contact the System Administrator to get a reset link.</p>
             </div>
 
             <form ng-show="!vm.success" name="form" role="form" novalidate ng-submit="vm.requestReset()" show-validation>

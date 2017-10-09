@@ -25,7 +25,7 @@
 
         <div
           class="cal-day-tick"
-          ng-show="monthIndex === vm.openMonthIndex && vm.view[vm.openMonthIndex].events.length > 0 && !vm.slideBoxDisabled">
+          ng-show="monthIndex === vm.openMonthIndex && (vm.cellAutoOpenDisabled || vm.view[vm.openMonthIndex].events.length > 0) && !vm.slideBoxDisabled">
           <i class="glyphicon glyphicon-chevron-up"></i>
           <i class="fa fa-chevron-up"></i>
         </div>
@@ -34,13 +34,12 @@
     </div>
 
     <mwl-calendar-slide-box
-      is-open="vm.openRowIndex === $index && vm.view[vm.openMonthIndex].events.length > 0 && !vm.slideBoxDisabled"
+      is-open="vm.openRowIndex === $index && (vm.cellAutoOpenDisabled || vm.view[vm.openMonthIndex].events.length > 0) && !vm.slideBoxDisabled"
       events="vm.view[vm.openMonthIndex].events"
       on-event-click="vm.onEventClick"
-      edit-event-html="vm.editEventHtml"
-      on-edit-event-click="vm.onEditEventClick"
-      delete-event-html="vm.deleteEventHtml"
-      on-delete-event-click="vm.onDeleteEventClick">
+      cell="vm.view[vm.openMonthIndex]"
+      custom-template-urls="vm.customTemplateUrls"
+      template-scope="vm.templateScope">
     </mwl-calendar-slide-box>
 
   </div>
