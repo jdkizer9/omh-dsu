@@ -16,6 +16,7 @@
 
 package org.openmhealth.dsu.configuration;
 
+import org.openmhealth.dsu.service.EndUserUserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -46,6 +47,9 @@ public class OAuth2AuthorizationServerConfiguration extends AuthorizationServerC
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private EndUserUserDetailsServiceImpl userDetailsService;
+
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         clients.withClientDetails(clientDetailsService);
@@ -56,7 +60,8 @@ public class OAuth2AuthorizationServerConfiguration extends AuthorizationServerC
 
         endpoints
                 .tokenStore(tokenStore)
-                .authenticationManager(authenticationManager);
+                .authenticationManager(authenticationManager)
+                .userDetailsService(userDetailsService);
 
     }
     @Override
